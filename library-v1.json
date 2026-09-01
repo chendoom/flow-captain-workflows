@@ -1,0 +1,23 @@
+{
+  "format": "flow-captain-workflow-library",
+  "schemaVersion": 1,
+  "readmeURL": "https://github.com/chendoom/flow-captain-workflows#share-a-workflow",
+  "workflows": [
+    {
+      "id": "borrowed-item",
+      "title": "Borrowed Item",
+      "summary": "Record an item being lent, returned, and acknowledged.",
+      "author": "Flow Captain",
+      "iconSystemName": "shippingbox.fill",
+      "definitionPath": "workflows/borrowed-item.json"
+    },
+    {
+      "id": "household-chore",
+      "title": "Household Chore",
+      "summary": "Assign a task, check the result, and request another attempt when needed.",
+      "author": "Flow Captain",
+      "iconSystemName": "checkmark.circle.fill",
+      "definitionPath": "workflows/household-chore.json"
+    }
+  ]
+}

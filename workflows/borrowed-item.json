@@ -1,0 +1,93 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Borrowed Item",
+    "description": "Record an item being lent, returned, and acknowledged by its owner.",
+    "roles": [
+      {
+        "id": "owner",
+        "name": "Owner",
+        "cardinality": "one",
+        "startsWorkflow": true
+      },
+      {
+        "id": "borrower",
+        "name": "Borrower",
+        "cardinality": "one"
+      }
+    ],
+    "data": [
+      {
+        "id": "item",
+        "name": "Item",
+        "type": "string",
+        "requiredAtStart": true
+      },
+      {
+        "id": "return-by",
+        "name": "Return By",
+        "type": "dateTime",
+        "requiredAtStart": true
+      }
+    ],
+    "states": [
+      {
+        "id": "borrowed",
+        "name": "Borrowed"
+      },
+      {
+        "id": "returned",
+        "name": "Returned"
+      },
+      {
+        "id": "closed",
+        "name": "Closed",
+        "terminal": true,
+        "outcome": "successful"
+      }
+    ],
+    "actions": [
+      {
+        "id": "lend",
+        "name": "Lend Item",
+        "paths": [
+          {
+            "id": "lend-item",
+            "from": "start",
+            "role": "owner",
+            "to": "borrowed"
+          }
+        ]
+      },
+      {
+        "id": "return",
+        "name": "Mark Returned",
+        "paths": [
+          {
+            "id": "return-item",
+            "from": "borrowed",
+            "role": "borrower",
+            "to": "returned"
+          }
+        ]
+      },
+      {
+        "id": "confirm-return",
+        "name": "Confirm Return",
+        "paths": [
+          {
+            "id": "confirm-item-return",
+            "from": "returned",
+            "role": "owner",
+            "to": "closed"
+          }
+        ]
+      }
+    ],
+    "presentation": {
+      "iconSystemName": "shippingbox.fill"
+    }
+  }
+}

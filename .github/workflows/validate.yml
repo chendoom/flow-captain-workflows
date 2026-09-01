@@ -1,0 +1,20 @@
+name: Validate workflow library
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python3 scripts/check_library.py
+      - name: Download the public Flow Captain schema
+        run: curl --fail --silent --show-error --output /tmp/workflow-v1.schema.json https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json
+      - name: Validate every workflow against the public schema
+        run: npx --yes ajv-cli@5 validate --spec=draft2020 --strict=false -s /tmp/workflow-v1.schema.json -d 'workflows/*.json'

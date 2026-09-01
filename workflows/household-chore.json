@@ -1,0 +1,101 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Household Chore",
+    "description": "Assign a household task, check the result, and request another attempt when needed.",
+    "roles": [
+      {
+        "id": "organizer",
+        "name": "Organizer",
+        "cardinality": "one",
+        "startsWorkflow": true
+      },
+      {
+        "id": "helper",
+        "name": "Helper",
+        "cardinality": "one"
+      }
+    ],
+    "data": [
+      {
+        "id": "task",
+        "name": "Task",
+        "type": "string",
+        "requiredAtStart": true
+      }
+    ],
+    "states": [
+      {
+        "id": "assigned",
+        "name": "Assigned"
+      },
+      {
+        "id": "ready-to-check",
+        "name": "Ready to Check"
+      },
+      {
+        "id": "complete",
+        "name": "Complete",
+        "terminal": true,
+        "outcome": "successful"
+      }
+    ],
+    "actions": [
+      {
+        "id": "assign",
+        "name": "Assign",
+        "paths": [
+          {
+            "id": "assign-task",
+            "from": "start",
+            "role": "organizer",
+            "to": "assigned"
+          }
+        ]
+      },
+      {
+        "id": "mark-done",
+        "name": "Mark Done",
+        "paths": [
+          {
+            "id": "mark-task-done",
+            "from": "assigned",
+            "role": "helper",
+            "to": "ready-to-check"
+          }
+        ]
+      },
+      {
+        "id": "approve",
+        "name": "Approve",
+        "paths": [
+          {
+            "id": "approve-task",
+            "from": "ready-to-check",
+            "role": "organizer",
+            "to": "complete",
+            "order": 1
+          }
+        ]
+      },
+      {
+        "id": "try-again",
+        "name": "Try Again",
+        "paths": [
+          {
+            "id": "retry-task",
+            "from": "ready-to-check",
+            "role": "organizer",
+            "to": "assigned",
+            "order": 2
+          }
+        ]
+      }
+    ],
+    "presentation": {
+      "iconSystemName": "checkmark.circle.fill"
+    }
+  }
+}
