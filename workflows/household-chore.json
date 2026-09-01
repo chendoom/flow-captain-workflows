@@ -16,6 +16,12 @@
         "id": "helper",
         "name": "Helper",
         "cardinality": "one"
+      },
+      {
+        "id": "observer",
+        "name": "Observer",
+        "cardinality": "one-or-more",
+        "isObserver": true
       }
     ],
     "data": [
