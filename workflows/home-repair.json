@@ -1,0 +1,79 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Home Repair",
+    "description": "Report a household problem, track the repair, and confirm the result.",
+    "roles": [
+      { "id": "reporter", "name": "Reporter", "cardinality": "one", "startsWorkflow": true },
+      { "id": "repairer", "name": "Repairer", "cardinality": "one" },
+      { "id": "observer", "name": "Observer", "cardinality": "one-or-more", "isObserver": true }
+    ],
+    "data": [
+      { "id": "problem", "name": "Problem", "type": "text", "requiredAtStart": true },
+      { "id": "location", "name": "Location", "type": "text", "requiredAtStart": true },
+      { "id": "repair-notes", "name": "Repair Notes", "type": "text" }
+    ],
+    "states": [
+      { "id": "reported", "name": "Reported" },
+      { "id": "repairing", "name": "Repairing" },
+      { "id": "ready-to-check", "name": "Ready to Check" },
+      { "id": "resolved", "name": "Resolved", "terminal": true, "outcome": "successful" },
+      { "id": "unable-to-repair", "name": "Unable to Repair", "terminal": true, "outcome": "unsuccessful" }
+    ],
+    "actions": [
+      {
+        "id": "report-problem",
+        "name": "Report Problem",
+        "payload": [
+          { "id": "problem", "name": "Problem", "domainField": "problem" },
+          { "id": "location", "name": "Location", "domainField": "location" }
+        ],
+        "paths": [{
+          "id": "report-problem-path",
+          "from": "start",
+          "role": "reporter",
+          "to": "reported",
+          "updates": [
+            { "kind": "copy-input", "output": "problem", "input": "problem" },
+            { "kind": "copy-input", "output": "location", "input": "location" }
+          ]
+        }]
+      },
+      {
+        "id": "accept-repair",
+        "name": "Start Repair",
+        "paths": [{ "id": "accept-repair-path", "from": "reported", "role": "repairer", "to": "repairing" }]
+      },
+      {
+        "id": "finish-repair",
+        "name": "Finish Repair",
+        "payload": [{ "id": "repair-notes", "name": "Repair Notes", "domainField": "repair-notes" }],
+        "paths": [{
+          "id": "finish-repair-path",
+          "from": "repairing",
+          "role": "repairer",
+          "to": "ready-to-check",
+          "order": 1,
+          "updates": [{ "kind": "copy-input", "output": "repair-notes", "input": "repair-notes" }]
+        }]
+      },
+      {
+        "id": "cannot-repair",
+        "name": "Cannot Repair",
+        "paths": [{ "id": "cannot-repair-path", "from": "repairing", "role": "repairer", "to": "unable-to-repair", "order": 2, "emphasis": "destructive" }]
+      },
+      {
+        "id": "confirm-repair",
+        "name": "Confirm Repair",
+        "paths": [{ "id": "confirm-repair-path", "from": "ready-to-check", "role": "reporter", "to": "resolved", "order": 1 }]
+      },
+      {
+        "id": "needs-more-work",
+        "name": "Needs More Work",
+        "paths": [{ "id": "needs-more-work-path", "from": "ready-to-check", "role": "reporter", "to": "repairing", "order": 2 }]
+      }
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Shared Shopping List",
+    "description": "Assign a shopping list, report unavailable items, and confirm completion.",
+    "roles": [
+      { "id": "organizer", "name": "Organizer", "cardinality": "one", "startsWorkflow": true },
+      { "id": "shopper", "name": "Shopper", "cardinality": "one" }
+    ],
+    "data": [
+      { "id": "shopping-list", "name": "Shopping List", "type": "text", "requiredAtStart": true },
+      { "id": "budget", "name": "Budget", "type": "decimal", "requiredAtStart": true },
+      { "id": "unavailable-items", "name": "Unavailable Items", "type": "text" }
+    ],
+    "states": [
+      { "id": "assigned", "name": "Assigned" },
+      { "id": "shopping", "name": "Shopping" },
+      { "id": "ready-to-check", "name": "Ready to Check" },
+      { "id": "needs-update", "name": "Needs Update" },
+      { "id": "complete", "name": "Complete", "terminal": true, "outcome": "successful" }
+    ],
+    "actions": [
+      {
+        "id": "assign-shopping",
+        "name": "Assign Shopping",
+        "payload": [
+          { "id": "shopping-list", "name": "Shopping List", "domainField": "shopping-list" },
+          { "id": "budget", "name": "Budget", "domainField": "budget" }
+        ],
+        "paths": [{
+          "id": "assign-shopping-path",
+          "from": "start",
+          "role": "organizer",
+          "to": "assigned",
+          "updates": [
+            { "kind": "copy-input", "output": "shopping-list", "input": "shopping-list" },
+            { "kind": "copy-input", "output": "budget", "input": "budget" }
+          ]
+        }]
+      },
+      {
+        "id": "start-shopping",
+        "name": "Start Shopping",
+        "paths": [{ "id": "start-shopping-path", "from": "assigned", "role": "shopper", "to": "shopping" }]
+      },
+      {
+        "id": "finish-shopping",
+        "name": "Finish Shopping",
+        "paths": [{ "id": "finish-shopping-path", "from": "shopping", "role": "shopper", "to": "ready-to-check", "order": 1 }]
+      },
+      {
+        "id": "report-unavailable-items",
+        "name": "Report Unavailable",
+        "payload": [{ "id": "unavailable-items", "name": "Unavailable Items", "domainField": "unavailable-items" }],
+        "paths": [{
+          "id": "report-unavailable-items-path",
+          "from": "shopping",
+          "role": "shopper",
+          "to": "needs-update",
+          "order": 2,
+          "updates": [{ "kind": "copy-input", "output": "unavailable-items", "input": "unavailable-items" }]
+        }]
+      },
+      {
+        "id": "update-shopping-list",
+        "name": "Update List",
+        "payload": [{ "id": "updated-shopping-list", "name": "Shopping List", "domainField": "shopping-list" }],
+        "paths": [{
+          "id": "update-shopping-list-path",
+          "from": "needs-update",
+          "role": "organizer",
+          "to": "shopping",
+          "updates": [{ "kind": "copy-input", "output": "shopping-list", "input": "updated-shopping-list" }]
+        }]
+      },
+      {
+        "id": "confirm-shopping",
+        "name": "Confirm Complete",
+        "paths": [{ "id": "confirm-shopping-path", "from": "ready-to-check", "role": "organizer", "to": "complete" }]
+      }
+    ]
+  }
+}

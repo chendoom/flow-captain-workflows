@@ -1,0 +1,76 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Document Review",
+    "description": "Submit a document for approval or return it to the author for changes.",
+    "roles": [
+      { "id": "author", "name": "Author", "cardinality": "one", "startsWorkflow": true },
+      { "id": "reviewer", "name": "Reviewer", "cardinality": "one" },
+      { "id": "observer", "name": "Observer", "cardinality": "one-or-more", "isObserver": true }
+    ],
+    "data": [
+      { "id": "document", "name": "Document", "type": "text", "requiredAtStart": true },
+      { "id": "review-feedback", "name": "Review Feedback", "type": "text" }
+    ],
+    "states": [
+      { "id": "in-review", "name": "In Review" },
+      { "id": "changes-requested", "name": "Changes Requested" },
+      { "id": "approved", "name": "Approved", "terminal": true, "outcome": "successful" },
+      { "id": "withdrawn", "name": "Withdrawn", "terminal": true, "outcome": "neutral" }
+    ],
+    "actions": [
+      {
+        "id": "submit-document",
+        "name": "Submit Document",
+        "payload": [{ "id": "document", "name": "Document", "domainField": "document" }],
+        "paths": [{
+          "id": "submit-document-path",
+          "from": "start",
+          "role": "author",
+          "to": "in-review",
+          "updates": [{ "kind": "copy-input", "output": "document", "input": "document" }]
+        }]
+      },
+      {
+        "id": "approve-document",
+        "name": "Approve",
+        "paths": [{ "id": "approve-document-path", "from": "in-review", "role": "reviewer", "to": "approved", "order": 1 }]
+      },
+      {
+        "id": "request-document-changes",
+        "name": "Request Changes",
+        "payload": [{ "id": "review-feedback", "name": "Review Feedback", "domainField": "review-feedback" }],
+        "paths": [{
+          "id": "request-document-changes-path",
+          "from": "in-review",
+          "role": "reviewer",
+          "to": "changes-requested",
+          "order": 2,
+          "updates": [{ "kind": "copy-input", "output": "review-feedback", "input": "review-feedback" }]
+        }]
+      },
+      {
+        "id": "resubmit-document",
+        "name": "Resubmit",
+        "payload": [{ "id": "revised-document", "name": "Document", "domainField": "document" }],
+        "paths": [{
+          "id": "resubmit-document-path",
+          "from": "changes-requested",
+          "role": "author",
+          "to": "in-review",
+          "updates": [{ "kind": "copy-input", "output": "document", "input": "revised-document" }]
+        }]
+      },
+      {
+        "id": "withdraw-document",
+        "name": "Withdraw",
+        "paths": [
+          { "id": "withdraw-document-review-path", "from": "in-review", "role": "author", "to": "withdrawn", "emphasis": "destructive" },
+          { "id": "withdraw-document-changes-path", "from": "changes-requested", "role": "author", "to": "withdrawn", "emphasis": "destructive" }
+        ]
+      }
+    ]
+  }
+}

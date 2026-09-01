@@ -1,0 +1,67 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Event RSVP",
+    "description": "Invite one guest, collect their response, and acknowledge the final answer.",
+    "roles": [
+      { "id": "organizer", "name": "Organizer", "cardinality": "one", "startsWorkflow": true },
+      { "id": "guest", "name": "Guest", "cardinality": "one" }
+    ],
+    "data": [
+      { "id": "event", "name": "Event", "type": "text", "requiredAtStart": true },
+      { "id": "event-time", "name": "Event Time", "type": "date-time", "requiredAtStart": true },
+      { "id": "location", "name": "Location", "type": "text", "requiredAtStart": true }
+    ],
+    "states": [
+      { "id": "awaiting-response", "name": "Awaiting Response" },
+      { "id": "attending", "name": "Attending" },
+      { "id": "not-attending", "name": "Not Attending" },
+      { "id": "confirmed", "name": "Confirmed", "terminal": true, "outcome": "successful" },
+      { "id": "declined", "name": "Declined", "terminal": true, "outcome": "neutral" }
+    ],
+    "actions": [
+      {
+        "id": "send-invitation",
+        "name": "Send Invitation",
+        "payload": [
+          { "id": "event", "name": "Event", "domainField": "event" },
+          { "id": "event-time", "name": "Event Time", "domainField": "event-time" },
+          { "id": "location", "name": "Location", "domainField": "location" }
+        ],
+        "paths": [{
+          "id": "send-invitation-path",
+          "from": "start",
+          "role": "organizer",
+          "to": "awaiting-response",
+          "updates": [
+            { "kind": "copy-input", "output": "event", "input": "event" },
+            { "kind": "copy-input", "output": "event-time", "input": "event-time" },
+            { "kind": "copy-input", "output": "location", "input": "location" }
+          ]
+        }]
+      },
+      {
+        "id": "accept-invitation",
+        "name": "Accept",
+        "paths": [{ "id": "accept-invitation-path", "from": "awaiting-response", "role": "guest", "to": "attending", "order": 1 }]
+      },
+      {
+        "id": "decline-invitation",
+        "name": "Decline",
+        "paths": [{ "id": "decline-invitation-path", "from": "awaiting-response", "role": "guest", "to": "not-attending", "order": 2, "emphasis": "destructive" }]
+      },
+      {
+        "id": "acknowledge-acceptance",
+        "name": "Confirm Attendance",
+        "paths": [{ "id": "acknowledge-acceptance-path", "from": "attending", "role": "organizer", "to": "confirmed" }]
+      },
+      {
+        "id": "acknowledge-decline",
+        "name": "Acknowledge Decline",
+        "paths": [{ "id": "acknowledge-decline-path", "from": "not-attending", "role": "organizer", "to": "declined" }]
+      }
+    ]
+  }
+}

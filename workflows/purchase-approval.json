@@ -1,0 +1,89 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Purchase Approval",
+    "description": "Submit a proposed purchase for approval, rejection, or requested changes.",
+    "roles": [
+      { "id": "requester", "name": "Requester", "cardinality": "one", "startsWorkflow": true },
+      { "id": "approver", "name": "Approver", "cardinality": "one" },
+      { "id": "observer", "name": "Observer", "cardinality": "one-or-more", "isObserver": true }
+    ],
+    "data": [
+      { "id": "purchase", "name": "Purchase", "type": "text", "requiredAtStart": true },
+      { "id": "estimated-cost", "name": "Estimated Cost", "type": "decimal", "requiredAtStart": true },
+      { "id": "business-reason", "name": "Reason", "type": "text", "requiredAtStart": true },
+      { "id": "approver-feedback", "name": "Approver Feedback", "type": "text" }
+    ],
+    "states": [
+      { "id": "awaiting-approval", "name": "Awaiting Approval" },
+      { "id": "changes-requested", "name": "Changes Requested" },
+      { "id": "approved", "name": "Approved", "terminal": true, "outcome": "successful" },
+      { "id": "rejected", "name": "Rejected", "terminal": true, "outcome": "unsuccessful" }
+    ],
+    "actions": [
+      {
+        "id": "submit-purchase",
+        "name": "Submit Purchase",
+        "payload": [
+          { "id": "purchase", "name": "Purchase", "domainField": "purchase" },
+          { "id": "estimated-cost", "name": "Estimated Cost", "domainField": "estimated-cost" },
+          { "id": "business-reason", "name": "Reason", "domainField": "business-reason" }
+        ],
+        "paths": [{
+          "id": "submit-purchase-path",
+          "from": "start",
+          "role": "requester",
+          "to": "awaiting-approval",
+          "updates": [
+            { "kind": "copy-input", "output": "purchase", "input": "purchase" },
+            { "kind": "copy-input", "output": "estimated-cost", "input": "estimated-cost" },
+            { "kind": "copy-input", "output": "business-reason", "input": "business-reason" }
+          ]
+        }]
+      },
+      {
+        "id": "approve-purchase",
+        "name": "Approve",
+        "paths": [{ "id": "approve-purchase-path", "from": "awaiting-approval", "role": "approver", "to": "approved", "order": 1 }]
+      },
+      {
+        "id": "request-purchase-changes",
+        "name": "Request Changes",
+        "payload": [{ "id": "change-feedback", "name": "Feedback", "domainField": "approver-feedback" }],
+        "paths": [{
+          "id": "request-purchase-changes-path",
+          "from": "awaiting-approval",
+          "role": "approver",
+          "to": "changes-requested",
+          "order": 2,
+          "updates": [{ "kind": "copy-input", "output": "approver-feedback", "input": "change-feedback" }]
+        }]
+      },
+      {
+        "id": "reject-purchase",
+        "name": "Reject",
+        "paths": [{ "id": "reject-purchase-path", "from": "awaiting-approval", "role": "approver", "to": "rejected", "order": 3, "emphasis": "destructive" }]
+      },
+      {
+        "id": "resubmit-purchase",
+        "name": "Resubmit",
+        "payload": [
+          { "id": "revised-cost", "name": "Estimated Cost", "domainField": "estimated-cost" },
+          { "id": "revised-reason", "name": "Reason", "domainField": "business-reason" }
+        ],
+        "paths": [{
+          "id": "resubmit-purchase-path",
+          "from": "changes-requested",
+          "role": "requester",
+          "to": "awaiting-approval",
+          "updates": [
+            { "kind": "copy-input", "output": "estimated-cost", "input": "revised-cost" },
+            { "kind": "copy-input", "output": "business-reason", "input": "revised-reason" }
+          ]
+        }]
+      }
+    ]
+  }
+}

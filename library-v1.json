@@ -12,12 +12,92 @@
       "definitionPath": "workflows/borrowed-item.json"
     },
     {
+      "id": "borrowed-vehicle",
+      "title": "Borrowed Vehicle",
+      "summary": "Coordinate collection, use, return, and condition notes for a borrowed vehicle.",
+      "author": "Flow Captain",
+      "iconSystemName": "car.fill",
+      "definitionPath": "workflows/borrowed-vehicle.json"
+    },
+    {
+      "id": "delivery-tracking",
+      "title": "Delivery Tracking",
+      "summary": "Follow a delivery from dispatch through collection and confirmed receipt.",
+      "author": "Flow Captain",
+      "iconSystemName": "shippingbox.fill",
+      "definitionPath": "workflows/delivery-tracking.json"
+    },
+    {
+      "id": "document-review",
+      "title": "Document Review",
+      "summary": "Submit a document for approval or return it to the author for changes.",
+      "author": "Flow Captain",
+      "iconSystemName": "doc.text.magnifyingglass",
+      "definitionPath": "workflows/document-review.json"
+    },
+    {
+      "id": "equipment-inspection",
+      "title": "Equipment Inspection",
+      "summary": "Request an inspection, record the result, and repeat it after repairs.",
+      "author": "Flow Captain",
+      "iconSystemName": "checkmark.seal.fill",
+      "definitionPath": "workflows/equipment-inspection.json"
+    },
+    {
+      "id": "event-rsvp",
+      "title": "Event RSVP",
+      "summary": "Invite one guest, collect their response, and acknowledge the final answer.",
+      "author": "Flow Captain",
+      "iconSystemName": "calendar.badge.checkmark",
+      "definitionPath": "workflows/event-rsvp.json"
+    },
+    {
+      "id": "holiday-request",
+      "title": "Holiday Request",
+      "summary": "Request time away and receive a clear approval or decline from a manager.",
+      "author": "Flow Captain",
+      "iconSystemName": "calendar.badge.clock",
+      "definitionPath": "workflows/holiday-request.json"
+    },
+    {
+      "id": "home-repair",
+      "title": "Home Repair",
+      "summary": "Report a household problem, track the repair, and confirm the result.",
+      "author": "Flow Captain",
+      "iconSystemName": "wrench.and.screwdriver.fill",
+      "definitionPath": "workflows/home-repair.json"
+    },
+    {
       "id": "household-chore",
       "title": "Household Chore",
       "summary": "Assign a task, check the result, and request another attempt when needed.",
       "author": "Flow Captain",
       "iconSystemName": "checkmark.circle.fill",
       "definitionPath": "workflows/household-chore.json"
+    },
+    {
+      "id": "pet-care-handover",
+      "title": "Pet Care Handover",
+      "summary": "Share care instructions, accept responsibility, and confirm the pet is handed back.",
+      "author": "Flow Captain",
+      "iconSystemName": "pawprint.fill",
+      "definitionPath": "workflows/pet-care-handover.json"
+    },
+    {
+      "id": "purchase-approval",
+      "title": "Purchase Approval",
+      "summary": "Submit a proposed purchase for approval, rejection, or requested changes.",
+      "author": "Flow Captain",
+      "iconSystemName": "cart.fill",
+      "definitionPath": "workflows/purchase-approval.json"
+    },
+    {
+      "id": "shared-shopping-list",
+      "title": "Shared Shopping List",
+      "summary": "Assign a shopping list, report unavailable items, and confirm completion.",
+      "author": "Flow Captain",
+      "iconSystemName": "list.bullet.clipboard.fill",
+      "definitionPath": "workflows/shared-shopping-list.json"
     }
   ]
 }

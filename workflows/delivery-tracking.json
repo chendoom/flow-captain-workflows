@@ -1,0 +1,68 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Delivery Tracking",
+    "description": "Follow a delivery from dispatch through collection and confirmed receipt.",
+    "roles": [
+      { "id": "sender", "name": "Sender", "cardinality": "one", "startsWorkflow": true },
+      { "id": "courier", "name": "Courier", "cardinality": "one" },
+      { "id": "recipient", "name": "Recipient", "cardinality": "one" }
+    ],
+    "data": [
+      { "id": "parcel", "name": "Parcel", "type": "text", "requiredAtStart": true },
+      { "id": "tracking-reference", "name": "Tracking Reference", "type": "text", "requiredAtStart": true },
+      { "id": "expected-by", "name": "Expected By", "type": "date-time", "requiredAtStart": true }
+    ],
+    "states": [
+      { "id": "awaiting-collection", "name": "Awaiting Collection" },
+      { "id": "in-transit", "name": "In Transit" },
+      { "id": "delivered", "name": "Delivered" },
+      { "id": "received", "name": "Received", "terminal": true, "outcome": "successful" },
+      { "id": "problem-reported", "name": "Problem Reported", "terminal": true, "outcome": "unsuccessful" }
+    ],
+    "actions": [
+      {
+        "id": "dispatch",
+        "name": "Dispatch",
+        "payload": [
+          { "id": "parcel", "name": "Parcel", "domainField": "parcel" },
+          { "id": "tracking-reference", "name": "Tracking Reference", "domainField": "tracking-reference" },
+          { "id": "expected-by", "name": "Expected By", "domainField": "expected-by" }
+        ],
+        "paths": [{
+          "id": "dispatch-path",
+          "from": "start",
+          "role": "sender",
+          "to": "awaiting-collection",
+          "updates": [
+            { "kind": "copy-input", "output": "parcel", "input": "parcel" },
+            { "kind": "copy-input", "output": "tracking-reference", "input": "tracking-reference" },
+            { "kind": "copy-input", "output": "expected-by", "input": "expected-by" }
+          ]
+        }]
+      },
+      {
+        "id": "collect-parcel",
+        "name": "Collect Parcel",
+        "paths": [{ "id": "collect-parcel-path", "from": "awaiting-collection", "role": "courier", "to": "in-transit" }]
+      },
+      {
+        "id": "mark-delivered",
+        "name": "Mark Delivered",
+        "paths": [{ "id": "mark-delivered-path", "from": "in-transit", "role": "courier", "to": "delivered" }]
+      },
+      {
+        "id": "confirm-receipt",
+        "name": "Confirm Receipt",
+        "paths": [{ "id": "confirm-receipt-path", "from": "delivered", "role": "recipient", "to": "received", "order": 1 }]
+      },
+      {
+        "id": "report-delivery-problem",
+        "name": "Report Problem",
+        "paths": [{ "id": "report-delivery-problem-path", "from": "delivered", "role": "recipient", "to": "problem-reported", "order": 2, "emphasis": "destructive" }]
+      }
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Borrowed Vehicle",
+    "description": "Coordinate collection, use, return, and condition notes for a borrowed vehicle.",
+    "roles": [
+      { "id": "owner", "name": "Owner", "cardinality": "one", "startsWorkflow": true },
+      { "id": "driver", "name": "Driver", "cardinality": "one" },
+      { "id": "observer", "name": "Observer", "cardinality": "one-or-more", "isObserver": true }
+    ],
+    "data": [
+      { "id": "vehicle", "name": "Vehicle", "type": "text", "requiredAtStart": true },
+      { "id": "return-by", "name": "Return By", "type": "date-time", "requiredAtStart": true },
+      { "id": "starting-condition", "name": "Starting Condition", "type": "text", "requiredAtStart": true },
+      { "id": "return-condition", "name": "Return Condition", "type": "text" }
+    ],
+    "states": [
+      { "id": "ready-for-collection", "name": "Ready for Collection" },
+      { "id": "in-use", "name": "In Use" },
+      { "id": "returned", "name": "Returned" },
+      { "id": "closed", "name": "Closed", "terminal": true, "outcome": "successful" }
+    ],
+    "actions": [
+      {
+        "id": "offer-vehicle",
+        "name": "Offer Vehicle",
+        "payload": [
+          { "id": "vehicle", "name": "Vehicle", "domainField": "vehicle" },
+          { "id": "return-by", "name": "Return By", "domainField": "return-by" },
+          { "id": "starting-condition", "name": "Starting Condition", "domainField": "starting-condition" }
+        ],
+        "paths": [{
+          "id": "offer-vehicle-path",
+          "from": "start",
+          "role": "owner",
+          "to": "ready-for-collection",
+          "updates": [
+            { "kind": "copy-input", "output": "vehicle", "input": "vehicle" },
+            { "kind": "copy-input", "output": "return-by", "input": "return-by" },
+            { "kind": "copy-input", "output": "starting-condition", "input": "starting-condition" }
+          ]
+        }]
+      },
+      {
+        "id": "collect-vehicle",
+        "name": "Collect Vehicle",
+        "paths": [{ "id": "collect-vehicle-path", "from": "ready-for-collection", "role": "driver", "to": "in-use" }]
+      },
+      {
+        "id": "return-vehicle",
+        "name": "Return Vehicle",
+        "payload": [{ "id": "return-condition", "name": "Return Condition", "domainField": "return-condition" }],
+        "paths": [{
+          "id": "return-vehicle-path",
+          "from": "in-use",
+          "role": "driver",
+          "to": "returned",
+          "updates": [{ "kind": "copy-input", "output": "return-condition", "input": "return-condition" }]
+        }]
+      },
+      {
+        "id": "confirm-vehicle-return",
+        "name": "Confirm Return",
+        "paths": [{ "id": "confirm-vehicle-return-path", "from": "returned", "role": "owner", "to": "closed" }]
+      }
+    ]
+  }
+}

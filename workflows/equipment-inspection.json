@@ -1,0 +1,87 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Equipment Inspection",
+    "description": "Request an inspection, record the result, and repeat it after repairs.",
+    "roles": [
+      { "id": "operator", "name": "Operator", "cardinality": "one", "startsWorkflow": true },
+      { "id": "inspector", "name": "Inspector", "cardinality": "one" },
+      { "id": "observer", "name": "Observer", "cardinality": "one-or-more", "isObserver": true }
+    ],
+    "data": [
+      { "id": "equipment", "name": "Equipment", "type": "text", "requiredAtStart": true },
+      { "id": "location", "name": "Location", "type": "text", "requiredAtStart": true },
+      { "id": "inspection-notes", "name": "Inspection Notes", "type": "text" }
+    ],
+    "states": [
+      { "id": "requested", "name": "Requested" },
+      { "id": "under-inspection", "name": "Under Inspection" },
+      { "id": "repairs-required", "name": "Repairs Required" },
+      { "id": "passed", "name": "Passed", "terminal": true, "outcome": "successful" },
+      { "id": "failed", "name": "Failed", "terminal": true, "outcome": "unsuccessful" }
+    ],
+    "actions": [
+      {
+        "id": "request-inspection",
+        "name": "Request Inspection",
+        "payload": [
+          { "id": "equipment", "name": "Equipment", "domainField": "equipment" },
+          { "id": "location", "name": "Location", "domainField": "location" }
+        ],
+        "paths": [{
+          "id": "request-inspection-path",
+          "from": "start",
+          "role": "operator",
+          "to": "requested",
+          "updates": [
+            { "kind": "copy-input", "output": "equipment", "input": "equipment" },
+            { "kind": "copy-input", "output": "location", "input": "location" }
+          ]
+        }]
+      },
+      {
+        "id": "begin-inspection",
+        "name": "Begin Inspection",
+        "paths": [{ "id": "begin-inspection-path", "from": "requested", "role": "inspector", "to": "under-inspection" }]
+      },
+      {
+        "id": "pass-inspection",
+        "name": "Pass Inspection",
+        "payload": [{ "id": "pass-notes", "name": "Inspection Notes", "domainField": "inspection-notes" }],
+        "paths": [{
+          "id": "pass-inspection-path",
+          "from": "under-inspection",
+          "role": "inspector",
+          "to": "passed",
+          "order": 1,
+          "updates": [{ "kind": "copy-input", "output": "inspection-notes", "input": "pass-notes" }]
+        }]
+      },
+      {
+        "id": "require-repairs",
+        "name": "Require Repairs",
+        "payload": [{ "id": "repair-notes", "name": "Required Repairs", "domainField": "inspection-notes" }],
+        "paths": [{
+          "id": "require-repairs-path",
+          "from": "under-inspection",
+          "role": "inspector",
+          "to": "repairs-required",
+          "order": 2,
+          "updates": [{ "kind": "copy-input", "output": "inspection-notes", "input": "repair-notes" }]
+        }]
+      },
+      {
+        "id": "repairs-complete",
+        "name": "Repairs Complete",
+        "paths": [{ "id": "repairs-complete-path", "from": "repairs-required", "role": "operator", "to": "requested", "order": 1 }]
+      },
+      {
+        "id": "remove-from-use",
+        "name": "Remove from Use",
+        "paths": [{ "id": "remove-from-use-path", "from": "repairs-required", "role": "operator", "to": "failed", "order": 2, "emphasis": "destructive" }]
+      }
+    ]
+  }
+}

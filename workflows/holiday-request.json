@@ -1,0 +1,62 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "format": "chendoom-workflow",
+  "schemaVersion": 1,
+  "workflow": {
+    "name": "Holiday Request",
+    "description": "Request time away and receive a clear approval or decline from a manager.",
+    "roles": [
+      { "id": "employee", "name": "Employee", "cardinality": "one", "startsWorkflow": true },
+      { "id": "manager", "name": "Manager", "cardinality": "one" },
+      { "id": "observer", "name": "Observer", "cardinality": "one-or-more", "isObserver": true }
+    ],
+    "data": [
+      { "id": "leave-start", "name": "Leave Starts", "type": "date-time", "requiredAtStart": true },
+      { "id": "leave-end", "name": "Leave Ends", "type": "date-time", "requiredAtStart": true },
+      { "id": "reason", "name": "Reason", "type": "text", "requiredAtStart": true }
+    ],
+    "states": [
+      { "id": "awaiting-decision", "name": "Awaiting Decision" },
+      { "id": "approved", "name": "Approved", "terminal": true, "outcome": "successful" },
+      { "id": "declined", "name": "Declined", "terminal": true, "outcome": "unsuccessful" },
+      { "id": "withdrawn", "name": "Withdrawn", "terminal": true, "outcome": "neutral" }
+    ],
+    "actions": [
+      {
+        "id": "request-holiday",
+        "name": "Request Holiday",
+        "payload": [
+          { "id": "leave-start", "name": "Leave Starts", "domainField": "leave-start" },
+          { "id": "leave-end", "name": "Leave Ends", "domainField": "leave-end" },
+          { "id": "reason", "name": "Reason", "domainField": "reason" }
+        ],
+        "paths": [{
+          "id": "request-holiday-path",
+          "from": "start",
+          "role": "employee",
+          "to": "awaiting-decision",
+          "updates": [
+            { "kind": "copy-input", "output": "leave-start", "input": "leave-start" },
+            { "kind": "copy-input", "output": "leave-end", "input": "leave-end" },
+            { "kind": "copy-input", "output": "reason", "input": "reason" }
+          ]
+        }]
+      },
+      {
+        "id": "approve-holiday",
+        "name": "Approve",
+        "paths": [{ "id": "approve-holiday-path", "from": "awaiting-decision", "role": "manager", "to": "approved", "order": 1 }]
+      },
+      {
+        "id": "decline-holiday",
+        "name": "Decline",
+        "paths": [{ "id": "decline-holiday-path", "from": "awaiting-decision", "role": "manager", "to": "declined", "order": 2, "emphasis": "destructive" }]
+      },
+      {
+        "id": "withdraw-holiday",
+        "name": "Withdraw",
+        "paths": [{ "id": "withdraw-holiday-path", "from": "awaiting-decision", "role": "employee", "to": "withdrawn", "order": 3, "emphasis": "destructive" }]
+      }
+    ]
+  }
+}

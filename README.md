@@ -9,9 +9,23 @@ download is validated by Flow Captain before it can be saved or run.
 
 ## Included workflows
 
-- **Household Chore** — assign a task, mark it complete, and either approve it
-  or ask for another attempt.
 - **Borrowed Item** — record an item being lent, returned, and acknowledged.
+- **Borrowed Vehicle** — coordinate collection, use, return, and condition
+  notes.
+- **Delivery Tracking** — follow a delivery through collection and confirmed
+  receipt.
+- **Document Review** — approve a document or return it for changes.
+- **Equipment Inspection** — inspect equipment and repeat the check after
+  repairs.
+- **Event RSVP** — invite a guest and acknowledge their response.
+- **Holiday Request** — request time away for approval by a manager.
+- **Home Repair** — report a problem, track its repair, and confirm the result.
+- **Household Chore** — assign a task, check it, and request another attempt if
+  needed.
+- **Pet Care Handover** — share care instructions and confirm the pet's return.
+- **Purchase Approval** — approve, reject, or request changes to a purchase.
+- **Shared Shopping List** — assign shopping, handle unavailable items, and
+  confirm completion.
 
 The app reads [`library-v1.json`](library-v1.json). The workflow documents are
 in [`workflows/`](workflows/).
