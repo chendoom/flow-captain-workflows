@@ -52,12 +52,36 @@
       {
         "id": "lend",
         "name": "Lend Item",
+        "payload": [
+          {
+            "id": "item",
+            "name": "Item",
+            "domainField": "item"
+          },
+          {
+            "id": "return-by",
+            "name": "Return By",
+            "domainField": "return-by"
+          }
+        ],
         "paths": [
           {
             "id": "lend-item",
             "from": "start",
             "role": "owner",
-            "to": "borrowed"
+            "to": "borrowed",
+            "updates": [
+              {
+                "kind": "copy-input",
+                "output": "item",
+                "input": "item"
+              },
+              {
+                "kind": "copy-input",
+                "output": "return-by",
+                "input": "return-by"
+              }
+            ]
           }
         ]
       },

@@ -46,12 +46,26 @@
       {
         "id": "assign",
         "name": "Assign",
+        "payload": [
+          {
+            "id": "task",
+            "name": "Task",
+            "domainField": "task"
+          }
+        ],
         "paths": [
           {
             "id": "assign-task",
             "from": "start",
             "role": "organizer",
-            "to": "assigned"
+            "to": "assigned",
+            "updates": [
+              {
+                "kind": "copy-input",
+                "output": "task",
+                "input": "task"
+              }
+            ]
           }
         ]
       },

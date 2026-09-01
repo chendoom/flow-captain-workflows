@@ -3,15 +3,33 @@
 Thank you for helping people start useful workflows without building one from
 scratch.
 
+## Recommended: create it with AI
+
+The easiest route is the same **Use AI** path available on Flow Captain's
+Definitions screen:
+
+1. Open the [Flow Captain AI authoring guide](https://www.chendoom.co.uk/flow-captain/authoring).
+2. Give its authoring context and schema to ChatGPT, Codex, Claude, Gemini, or
+   another capable AI.
+3. Describe the roles, starting information, actions, outcomes, and any
+   deadlines in ordinary language.
+4. Ask the AI to return exactly one schema-version-1 workflow JSON document.
+5. Import that JSON into Flow Captain, review the visual graph, and correct any
+   validation issues before submitting it here.
+
+AI output is only a draft. You remain responsible for reviewing the workflow
+and confirming that its names, paths, permissions, and outcomes match what you
+intend.
+
 ## Before opening a pull request
 
-1. Read the [Flow Captain authoring guide](https://www.chendoom.co.uk/flow-captain/authoring).
-2. Create one JSON document using `chendoom-workflow` schema version 1.
-3. Use lower-case kebab-case IDs and a short lower-case kebab-case filename.
-4. Put the document in `workflows/`.
-5. Add one entry to `library-v1.json`; keep entries ordered by title.
-6. Run `python3 scripts/check_library.py`.
-7. Import the JSON into Flow Captain and confirm that it opens in the visual
+1. Create one JSON document using `chendoom-workflow` schema version 1, ideally
+   through the AI-assisted route above.
+2. Use lower-case kebab-case IDs and a short lower-case kebab-case filename.
+3. Put the document in `workflows/`.
+4. Add one entry to `library-v1.json`; keep entries ordered by title.
+5. Run `python3 scripts/check_library.py`.
+6. Import the JSON into Flow Captain and confirm that it opens in the visual
    editor without blocking validation errors.
 
 ## What belongs here
