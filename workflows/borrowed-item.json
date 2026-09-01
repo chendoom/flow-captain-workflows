@@ -22,13 +22,13 @@
       {
         "id": "item",
         "name": "Item",
-        "type": "string",
+        "type": "text",
         "requiredAtStart": true
       },
       {
         "id": "return-by",
         "name": "Return By",
-        "type": "dateTime",
+        "type": "date-time",
         "requiredAtStart": true
       }
     ],
@@ -85,9 +85,6 @@
           }
         ]
       }
-    ],
-    "presentation": {
-      "iconSystemName": "shippingbox.fill"
-    }
+    ]
   }
 }

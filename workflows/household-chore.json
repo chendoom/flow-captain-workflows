@@ -22,7 +22,7 @@
       {
         "id": "task",
         "name": "Task",
-        "type": "string",
+        "type": "text",
         "requiredAtStart": true
       }
     ],
@@ -93,9 +93,6 @@
           }
         ]
       }
-    ],
-    "presentation": {
-      "iconSystemName": "checkmark.circle.fill"
-    }
+    ]
   }
 }
