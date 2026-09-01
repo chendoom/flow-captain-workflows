@@ -301,8 +301,7 @@
             "from": "active",
             "role": "organizer",
             "to": "active",
-            "order": 4,
-            "when": { "source": "action-input", "field": "everythingresolved", "equals": false }
+            "order": 4
           }
         ]
       }
