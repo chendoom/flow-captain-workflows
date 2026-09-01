@@ -1,7 +1,7 @@
 {
-  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "$schema": "https://www.chendoom.co.uk/artifacts/v2/workflow-v2.schema.json",
   "format": "chendoom-workflow",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "workflow": {
     "name": "Shared Shopping List",
     "description": "Let a group build a shared list, record every purchase or removal, and close it once every requested item is resolved.",
@@ -284,24 +284,26 @@
       {
         "id": "finish-list",
         "name": "Close List",
-        "payload": [
-          { "id": "everythingresolved", "name": "Everything on the list is purchased or removed", "type": "yes-no" }
-        ],
         "paths": [
           {
-            "id": "finish-list-confirmed",
+            "id": "finish-list-path",
             "from": "active",
             "role": "organizer",
             "to": "complete",
             "order": 4,
-            "when": { "source": "action-input", "field": "everythingresolved", "equals": true }
-          },
-          {
-            "id": "finish-list-not-ready",
-            "from": "active",
-            "role": "organizer",
-            "to": "active",
-            "order": 4
+            "availability": [
+              {
+                "kind": "record-collection-existence",
+                "collection": "items",
+                "exists": true
+              },
+              {
+                "kind": "record-collection-existence",
+                "collection": "items",
+                "excluding": "completeditems",
+                "exists": false
+              }
+            ]
           }
         ]
       }

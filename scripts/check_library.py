@@ -36,13 +36,19 @@ for entry in entries:
     assert ID.fullmatch(entry["id"]), entry["id"]
     assert entry["id"] not in seen, entry["id"]
     seen.add(entry["id"])
+    capabilities = entry.get("requiredCapabilities", [])
+    assert len(capabilities) == len(set(capabilities)), entry["id"]
+    assert all(ID.fullmatch(capability) for capability in capabilities), entry["id"]
     path = ROOT / entry["definitionPath"]
     assert path.is_file(), path
     assert path.resolve().is_relative_to((ROOT / "workflows").resolve()), path
     referenced.add(path.resolve())
     document = load(path)
     assert document["format"] == "chendoom-workflow", path
-    assert document["schemaVersion"] == 1, path
+    schema_version = document["schemaVersion"]
+    assert schema_version in {1, 2}, path
+    if schema_version == 2:
+        assert "authoring-schema-v2" in capabilities, entry["id"]
     assert document["workflow"]["name"] == entry["title"], path
 
 available = {path.resolve() for path in (ROOT / "workflows").glob("*.json")}

@@ -32,7 +32,7 @@ in [`workflows/`](workflows/).
 
 ## Share a workflow
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md), add a schema-version-1 workflow
+Please read [CONTRIBUTING.md](CONTRIBUTING.md), add a supported versioned workflow
 document, add its catalogue entry, and open a pull request. Contributions
 should be useful, understandable, domain-neutral, and free of personal data.
 

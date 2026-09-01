@@ -97,7 +97,10 @@
       "summary": "Build a shared list, record every purchase or removal, spot extra purchases, and close the completed list.",
       "author": "Flow Captain",
       "iconSystemName": "list.bullet.clipboard.fill",
-      "definitionPath": "workflows/shared-shopping-list.json"
+      "definitionPath": "workflows/shared-shopping-list.json",
+      "requiredCapabilities": [
+        "authoring-schema-v2"
+      ]
     }
   ]
 }

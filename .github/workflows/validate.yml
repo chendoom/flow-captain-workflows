@@ -14,7 +14,14 @@ jobs:
         with:
           python-version: "3.13"
       - run: python3 scripts/check_library.py
-      - name: Download the public Flow Captain schema
-        run: curl --fail --silent --show-error --output /tmp/workflow-v1.schema.json https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json
+      - name: Download the public Flow Captain schemas
+        run: |
+          curl --fail --silent --show-error --output /tmp/workflow-v1.schema.json https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json
+          curl --fail --silent --show-error --output /tmp/workflow-v2.schema.json https://www.chendoom.co.uk/artifacts/v2/workflow-v2.schema.json
       - name: Validate every workflow against the public schema
-        run: npx --yes ajv-cli@5 validate --spec=draft2020 --strict=false -s /tmp/workflow-v1.schema.json -d 'workflows/*.json'
+        run: |
+          for document in workflows/*.json; do
+            version="$(jq -r '.schemaVersion' "$document")"
+            npx --yes ajv-cli@5 validate --spec=draft2020 --strict=false \
+              -s "/tmp/workflow-v${version}.schema.json" -d "$document"
+          done
