@@ -4,82 +4,324 @@
   "schemaVersion": 1,
   "workflow": {
     "name": "Shared Shopping List",
-    "description": "Assign a shopping list, report unavailable items, and confirm completion.",
+    "description": "Let a group build a shared list, record every purchase or removal, and close it once every requested item is resolved.",
     "roles": [
       { "id": "organizer", "name": "Organizer", "cardinality": "one", "startsWorkflow": true },
-      { "id": "shopper", "name": "Shopper", "cardinality": "one" }
+      { "id": "shopper", "name": "Shopper", "cardinality": "one-or-more" },
+      { "id": "observer", "name": "Observer", "cardinality": "one-or-more", "isObserver": true }
     ],
     "data": [
-      { "id": "shopping-list", "name": "Shopping List", "type": "text", "requiredAtStart": true },
-      { "id": "budget", "name": "Budget", "type": "decimal", "requiredAtStart": true },
-      { "id": "unavailable-items", "name": "Unavailable Items", "type": "text" }
+      { "id": "listname", "name": "List Name", "type": "text", "requiredAtStart": true },
+      {
+        "id": "items",
+        "name": "Requested Items",
+        "type": "record-collection",
+        "record": {
+          "maximumRecords": 10000,
+          "fields": [
+            { "id": "itemid", "name": "Item ID", "type": "text", "kind": "key" },
+            { "id": "name", "name": "Item", "type": "text", "kind": "value" },
+            { "id": "quantity", "name": "Quantity", "type": "whole-number", "kind": "value" },
+            { "id": "addedbyactor", "name": "Added by", "type": "text", "kind": "actor" },
+            { "id": "addedat", "name": "Added at", "type": "date-time", "kind": "value" }
+          ]
+        }
+      },
+      {
+        "id": "completeditems",
+        "name": "Resolved Items",
+        "type": "record-collection",
+        "record": {
+          "maximumRecords": 10000,
+          "fields": [
+            { "id": "itemid", "name": "Item", "type": "text", "kind": "reference-key", "references": "items" }
+          ]
+        }
+      },
+      {
+        "id": "purchases",
+        "name": "Purchases",
+        "type": "record-collection",
+        "record": {
+          "maximumRecords": 10000,
+          "fields": [
+            { "id": "purchaseid", "name": "Purchase ID", "type": "text", "kind": "key" },
+            { "id": "itemid", "name": "Item", "type": "text", "kind": "reference-key", "references": "items" },
+            { "id": "purchasedbyactor", "name": "Purchased by", "type": "text", "kind": "actor" },
+            { "id": "purchasedat", "name": "Purchased at", "type": "date-time", "kind": "value" }
+          ]
+        }
+      },
+      {
+        "id": "removals",
+        "name": "Removals",
+        "type": "record-collection",
+        "record": {
+          "maximumRecords": 10000,
+          "fields": [
+            { "id": "removalid", "name": "Removal ID", "type": "text", "kind": "key" },
+            { "id": "itemid", "name": "Item", "type": "text", "kind": "reference-key", "references": "items" },
+            { "id": "removedbyactor", "name": "Removed by", "type": "text", "kind": "actor" },
+            { "id": "removedat", "name": "Removed at", "type": "date-time", "kind": "value" }
+          ]
+        }
+      }
     ],
     "states": [
-      { "id": "assigned", "name": "Assigned" },
-      { "id": "shopping", "name": "Shopping" },
-      { "id": "ready-to-check", "name": "Ready to Check" },
-      { "id": "needs-update", "name": "Needs Update" },
-      { "id": "complete", "name": "Complete", "terminal": true, "outcome": "successful" }
+      { "id": "active", "name": "Shopping" },
+      { "id": "complete", "name": "List Closed", "terminal": true, "outcome": "successful" }
     ],
     "actions": [
       {
-        "id": "assign-shopping",
-        "name": "Assign Shopping",
+        "id": "start-list",
+        "name": "Start List",
         "payload": [
-          { "id": "shopping-list", "name": "Shopping List", "domainField": "shopping-list" },
-          { "id": "budget", "name": "Budget", "domainField": "budget" }
+          { "id": "listname", "name": "List Name", "domainField": "listname" }
         ],
         "paths": [{
-          "id": "assign-shopping-path",
+          "id": "start-list-path",
           "from": "start",
           "role": "organizer",
-          "to": "assigned",
+          "to": "active",
           "updates": [
-            { "kind": "copy-input", "output": "shopping-list", "input": "shopping-list" },
-            { "kind": "copy-input", "output": "budget", "input": "budget" }
+            { "kind": "copy-input", "output": "listname", "input": "listname" }
           ]
         }]
       },
       {
-        "id": "start-shopping",
-        "name": "Start Shopping",
-        "paths": [{ "id": "start-shopping-path", "from": "assigned", "role": "shopper", "to": "shopping" }]
+        "id": "add-item",
+        "name": "Add Item",
+        "payload": [
+          { "id": "itemid", "name": "Item ID", "type": "text", "valueSource": "generated-id" },
+          { "id": "name", "name": "Item", "type": "text" },
+          { "id": "quantity", "name": "Quantity", "type": "whole-number", "minimumWholeNumber": 1 }
+        ],
+        "paths": [
+          {
+            "id": "add-item-organizer",
+            "from": "active",
+            "role": "organizer",
+            "to": "active",
+            "order": 1,
+            "updates": [{
+              "kind": "append-record",
+              "output": "items",
+              "keyInput": "itemid",
+              "mappings": [
+                { "field": "itemid", "source": "action-input", "input": "itemid" },
+                { "field": "name", "source": "action-input", "input": "name" },
+                { "field": "quantity", "source": "action-input", "input": "quantity" },
+                { "field": "addedbyactor", "source": "current-actor" },
+                { "field": "addedat", "source": "processed-at" }
+              ]
+            }]
+          },
+          {
+            "id": "add-item-shopper",
+            "from": "active",
+            "role": "shopper",
+            "to": "active",
+            "order": 1,
+            "updates": [{
+              "kind": "append-record",
+              "output": "items",
+              "keyInput": "itemid",
+              "mappings": [
+                { "field": "itemid", "source": "action-input", "input": "itemid" },
+                { "field": "name", "source": "action-input", "input": "name" },
+                { "field": "quantity", "source": "action-input", "input": "quantity" },
+                { "field": "addedbyactor", "source": "current-actor" },
+                { "field": "addedat", "source": "processed-at" }
+              ]
+            }]
+          }
+        ]
       },
       {
-        "id": "finish-shopping",
-        "name": "Finish Shopping",
-        "paths": [{ "id": "finish-shopping-path", "from": "shopping", "role": "shopper", "to": "ready-to-check", "order": 1 }]
+        "id": "mark-purchased",
+        "name": "Mark Purchased",
+        "payload": [
+          { "id": "purchaseid", "name": "Purchase ID", "type": "text", "valueSource": "generated-id" },
+          {
+            "id": "itemid",
+            "name": "Item",
+            "type": "text",
+            "options": { "kind": "record-keys", "field": "items", "excluding": "completeditems" }
+          }
+        ],
+        "paths": [
+          {
+            "id": "mark-purchased-organizer",
+            "from": "active",
+            "role": "organizer",
+            "to": "active",
+            "order": 2,
+            "updates": [
+              {
+                "kind": "append-record",
+                "output": "completeditems",
+                "keyInput": "itemid",
+                "mappings": [
+                  { "field": "itemid", "source": "action-input", "input": "itemid" }
+                ]
+              },
+              {
+                "kind": "append-record",
+                "output": "purchases",
+                "keyInput": "purchaseid",
+                "mappings": [
+                  { "field": "purchaseid", "source": "action-input", "input": "purchaseid" },
+                  { "field": "itemid", "source": "action-input", "input": "itemid" },
+                  { "field": "purchasedbyactor", "source": "current-actor" },
+                  { "field": "purchasedat", "source": "processed-at" }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "mark-purchased-shopper",
+            "from": "active",
+            "role": "shopper",
+            "to": "active",
+            "order": 2,
+            "updates": [
+              {
+                "kind": "append-record",
+                "output": "completeditems",
+                "keyInput": "itemid",
+                "mappings": [
+                  { "field": "itemid", "source": "action-input", "input": "itemid" }
+                ]
+              },
+              {
+                "kind": "append-record",
+                "output": "purchases",
+                "keyInput": "purchaseid",
+                "mappings": [
+                  { "field": "purchaseid", "source": "action-input", "input": "purchaseid" },
+                  { "field": "itemid", "source": "action-input", "input": "itemid" },
+                  { "field": "purchasedbyactor", "source": "current-actor" },
+                  { "field": "purchasedat", "source": "processed-at" }
+                ]
+              }
+            ]
+          }
+        ]
       },
       {
-        "id": "report-unavailable-items",
-        "name": "Report Unavailable",
-        "payload": [{ "id": "unavailable-items", "name": "Unavailable Items", "domainField": "unavailable-items" }],
-        "paths": [{
-          "id": "report-unavailable-items-path",
-          "from": "shopping",
-          "role": "shopper",
-          "to": "needs-update",
-          "order": 2,
-          "updates": [{ "kind": "copy-input", "output": "unavailable-items", "input": "unavailable-items" }]
-        }]
+        "id": "remove-item",
+        "name": "Remove Item",
+        "payload": [
+          { "id": "removalid", "name": "Removal ID", "type": "text", "valueSource": "generated-id" },
+          {
+            "id": "itemid",
+            "name": "Item",
+            "type": "text",
+            "options": { "kind": "record-keys", "field": "items", "excluding": "completeditems" }
+          }
+        ],
+        "paths": [
+          {
+            "id": "remove-item-organizer",
+            "from": "active",
+            "role": "organizer",
+            "to": "active",
+            "order": 3,
+            "emphasis": "destructive",
+            "updates": [
+              {
+                "kind": "append-record",
+                "output": "completeditems",
+                "keyInput": "itemid",
+                "mappings": [
+                  { "field": "itemid", "source": "action-input", "input": "itemid" }
+                ]
+              },
+              {
+                "kind": "append-record",
+                "output": "removals",
+                "keyInput": "removalid",
+                "mappings": [
+                  { "field": "removalid", "source": "action-input", "input": "removalid" },
+                  { "field": "itemid", "source": "action-input", "input": "itemid" },
+                  { "field": "removedbyactor", "source": "current-actor" },
+                  { "field": "removedat", "source": "processed-at" }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "remove-item-shopper",
+            "from": "active",
+            "role": "shopper",
+            "to": "active",
+            "order": 3,
+            "emphasis": "destructive",
+            "updates": [
+              {
+                "kind": "append-record",
+                "output": "completeditems",
+                "keyInput": "itemid",
+                "mappings": [
+                  { "field": "itemid", "source": "action-input", "input": "itemid" }
+                ]
+              },
+              {
+                "kind": "append-record",
+                "output": "removals",
+                "keyInput": "removalid",
+                "mappings": [
+                  { "field": "removalid", "source": "action-input", "input": "removalid" },
+                  { "field": "itemid", "source": "action-input", "input": "itemid" },
+                  { "field": "removedbyactor", "source": "current-actor" },
+                  { "field": "removedat", "source": "processed-at" }
+                ]
+              }
+            ]
+          }
+        ]
       },
       {
-        "id": "update-shopping-list",
-        "name": "Update List",
-        "payload": [{ "id": "updated-shopping-list", "name": "Shopping List", "domainField": "shopping-list" }],
-        "paths": [{
-          "id": "update-shopping-list-path",
-          "from": "needs-update",
-          "role": "organizer",
-          "to": "shopping",
-          "updates": [{ "kind": "copy-input", "output": "shopping-list", "input": "updated-shopping-list" }]
-        }]
-      },
-      {
-        "id": "confirm-shopping",
-        "name": "Confirm Complete",
-        "paths": [{ "id": "confirm-shopping-path", "from": "ready-to-check", "role": "organizer", "to": "complete" }]
+        "id": "finish-list",
+        "name": "Close List",
+        "payload": [
+          { "id": "everythingresolved", "name": "Everything on the list is purchased or removed", "type": "yes-no" }
+        ],
+        "paths": [
+          {
+            "id": "finish-list-confirmed",
+            "from": "active",
+            "role": "organizer",
+            "to": "complete",
+            "order": 4,
+            "when": { "source": "action-input", "field": "everythingresolved", "equals": true }
+          },
+          {
+            "id": "finish-list-not-ready",
+            "from": "active",
+            "role": "organizer",
+            "to": "active",
+            "order": 4,
+            "when": { "source": "action-input", "field": "everythingresolved", "equals": false }
+          }
+        ]
       }
-    ]
+    ],
+    "computedOutputs": [
+      {
+        "id": "shopping-summary",
+        "formula": "let purchaseditems: [Text] = []\nlet extrapurchases: Integer = 0\nfor purchase in purchases {\n    if purchaseditems contains purchase.itemid {\n        extrapurchases = extrapurchases + 1\n    } else {\n        purchaseditems.append(purchase.itemid)\n    }\n}\noutput requestedItems = items.count\noutput remainingItems = items.count - completeditems.count\noutput purchaseEvents = purchases.count\noutput extraPurchases = extrapurchases\noutput removedItems = removals.count"
+      }
+    ],
+    "presentation": {
+      "workflowData": {
+        "hiddenFields": ["items", "completeditems", "purchases", "removals"],
+        "collections": [
+          { "id": "available-items", "name": "Still Needed", "source": "items", "excluding": "completeditems" },
+          { "id": "purchased-items", "name": "Purchase Activity", "source": "purchases" },
+          { "id": "removed-items", "name": "Removal Activity", "source": "removals" }
+        ]
+      }
+    }
   }
 }

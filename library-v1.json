@@ -94,7 +94,7 @@
     {
       "id": "shared-shopping-list",
       "title": "Shared Shopping List",
-      "summary": "Assign a shopping list, report unavailable items, and confirm completion.",
+      "summary": "Build a shared list, record every purchase or removal, spot extra purchases, and close the completed list.",
       "author": "Flow Captain",
       "iconSystemName": "list.bullet.clipboard.fill",
       "definitionPath": "workflows/shared-shopping-list.json"

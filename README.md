@@ -24,8 +24,8 @@ download is validated by Flow Captain before it can be saved or run.
   needed.
 - **Pet Care Handover** — share care instructions and confirm the pet's return.
 - **Purchase Approval** — approve, reject, or request changes to a purchase.
-- **Shared Shopping List** — assign shopping, handle unavailable items, and
-  confirm completion.
+- **Shared Shopping List** — let everyone add, purchase, or remove items while
+  retaining concurrent purchases and highlighting extras.
 
 The app reads [`library-v1.json`](library-v1.json). The workflow documents are
 in [`workflows/`](workflows/).
