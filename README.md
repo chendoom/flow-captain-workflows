@@ -30,6 +30,16 @@ download is validated by Flow Captain before it can be saved or run.
 The app reads [`library-v1.json`](library-v1.json). The workflow documents are
 in [`workflows/`](workflows/).
 
+## Workflow Plans
+
+Plans connect several workflows into a larger journey. The first public Plan,
+**Group Trip**, covers proposing a trip, agreeing dates, booking, and splitting
+the final costs. Its editable definition is in [`plans/`](plans/README.md).
+
+Travellers in that Plan do not need app accounts. An authorised Flow Captain
+user can record a booking or expense for them, while the audit data still says
+which signed-in actor entered it.
+
 ## Share a workflow
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md), add a supported versioned workflow

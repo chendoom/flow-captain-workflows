@@ -53,4 +53,18 @@ for entry in entries:
 
 available = {path.resolve() for path in (ROOT / "workflows").glob("*.json")}
 assert referenced == available, "Every workflow file must appear exactly once in the catalogue"
-print(f"Checked {len(entries)} workflow definitions")
+
+plans = list((ROOT / "plans").glob("*.json"))
+for path in plans:
+    document = load(path)
+    assert document["format"] == "chendoom-workflow-plan", path
+    assert document["schemaVersion"] == 1, path
+    plan = document["plan"]
+    assert plan["id"] and plan["version"] and plan["name"], path
+    workflow_ids = [workflow["id"] for workflow in plan["workflows"]]
+    assert len(workflow_ids) == len(set(workflow_ids)), path
+    known = set(workflow_ids)
+    for workflow in plan["workflows"]:
+        assert set(workflow.get("after", [])).issubset(known), path
+
+print(f"Checked {len(entries)} workflow definitions and {len(plans)} workflow plans")

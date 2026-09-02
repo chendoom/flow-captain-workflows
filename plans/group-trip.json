@@ -1,0 +1,112 @@
+{
+  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-plan-v1.schema.json",
+  "format": "chendoom-workflow-plan",
+  "schemaVersion": 1,
+  "plan": {
+    "id": "group-trip",
+    "version": "1",
+    "name": "Group Trip",
+    "description": "Propose a trip, agree dates, record bookings, then track and split all trip costs.",
+    "roles": [
+      {
+        "id": "organizer",
+        "name": "Trip Organizer",
+        "assignmentCardinality": "exactlyOne",
+        "startsPlan": true
+      },
+      {
+        "id": "recorder",
+        "name": "Expense Recorder",
+        "assignmentCardinality": "oneOrMore",
+        "startsPlan": false
+      }
+    ],
+    "inputs": [
+      { "id": "tripName", "name": "Trip name", "type": "string" },
+      { "id": "destination", "name": "Destination", "type": "string" },
+      { "id": "currency", "name": "Currency", "type": "currency" },
+      {
+        "id": "participants",
+        "name": "Travellers",
+        "type": "string",
+        "valueShape": "list",
+        "minimumItemCount": 1,
+        "maximumItemCount": 100,
+        "uniqueItems": true
+      }
+    ],
+    "people": {
+      "description": "Travellers are data, not app accounts. An authorised actor can enter a booking or expense for a traveller who does not use Flow Captain. Each record separately retains the signed-in actor who entered it."
+    },
+    "workflows": [
+      {
+        "id": "proposal",
+        "definitionId": "trip-proposal",
+        "definitionVersion": "1",
+        "creationEventId": "propose-trip",
+        "launch": "automatic",
+        "roleBindings": [
+          { "planRoleId": "organizer", "workflowRoleId": "organizer" }
+        ],
+        "inputBindings": [
+          { "planInput": "tripName", "workflowInput": "tripName" },
+          { "planInput": "destination", "workflowInput": "destination" },
+          { "planInput": "currency", "workflowInput": "currency" },
+          { "planInput": "participants", "workflowInput": "participants" }
+        ]
+      },
+      {
+        "id": "dates",
+        "definitionId": "trip-date-agreement",
+        "definitionVersion": "1",
+        "creationEventId": "start-date-agreement",
+        "launch": "automatic",
+        "after": ["proposal"],
+        "roleBindings": [
+          { "planRoleId": "organizer", "workflowRoleId": "organizer" }
+        ],
+        "inputBindings": [
+          { "completedWorkflow": "proposal", "field": "tripName", "workflowInput": "tripName" },
+          { "completedWorkflow": "proposal", "field": "destination", "workflowInput": "destination" },
+          { "completedWorkflow": "proposal", "field": "currency", "workflowInput": "currency" },
+          { "completedWorkflow": "proposal", "field": "participants", "workflowInput": "participants" }
+        ]
+      },
+      {
+        "id": "booking",
+        "definitionId": "trip-booking",
+        "definitionVersion": "1",
+        "creationEventId": "start-booking",
+        "launch": "automatic",
+        "after": ["dates"],
+        "roleBindings": [
+          { "planRoleId": "organizer", "workflowRoleId": "organizer" }
+        ],
+        "inputBindings": [
+          { "completedWorkflow": "dates", "field": "tripName", "workflowInput": "tripName" },
+          { "completedWorkflow": "dates", "field": "destination", "workflowInput": "destination" },
+          { "completedWorkflow": "dates", "field": "currency", "workflowInput": "currency" },
+          { "completedWorkflow": "dates", "field": "participants", "workflowInput": "participants" }
+        ]
+      },
+      {
+        "id": "expenses",
+        "definitionId": "trip-expenses",
+        "definitionVersion": "9",
+        "creationEventId": "start-trip-with-bookings",
+        "launch": "automatic",
+        "after": ["booking"],
+        "roleBindings": [
+          { "planRoleId": "organizer", "workflowRoleId": "organizer" },
+          { "planRoleId": "recorder", "workflowRoleId": "recorder" }
+        ],
+        "inputBindings": [
+          { "completedWorkflow": "booking", "field": "tripName", "workflowInput": "tripName" },
+          { "completedWorkflow": "booking", "field": "currency", "workflowInput": "currency" },
+          { "completedWorkflow": "booking", "field": "participants", "workflowInput": "participants" },
+          { "completedWorkflow": "booking", "field": "expenses", "workflowInput": "expenses" }
+        ]
+      }
+    ]
+  }
+}
