@@ -54,17 +54,35 @@ for entry in entries:
 available = {path.resolve() for path in (ROOT / "workflows").glob("*.json")}
 assert referenced == available, "Every workflow file must appear exactly once in the catalogue"
 
-plans = list((ROOT / "plans").glob("*.json"))
-for path in plans:
+plan_entries = catalogue.get("plans", [])
+assert plan_entries == sorted(plan_entries, key=lambda entry: entry["title"].casefold())
+seen_plan_ids = set()
+referenced_plans = set()
+for entry in plan_entries:
+    assert ID.fullmatch(entry["id"]), entry["id"]
+    assert entry["id"] not in seen_plan_ids, entry["id"]
+    seen_plan_ids.add(entry["id"])
+    capabilities = entry.get("requiredCapabilities", [])
+    assert len(capabilities) == len(set(capabilities)), entry["id"]
+    assert all(ID.fullmatch(capability) for capability in capabilities), entry["id"]
+    path = ROOT / entry["definitionPath"]
+    assert path.is_file(), path
+    assert path.resolve().is_relative_to((ROOT / "plans").resolve()), path
+    referenced_plans.add(path.resolve())
     document = load(path)
     assert document["format"] == "chendoom-workflow-plan", path
     assert document["schemaVersion"] == 1, path
     plan = document["plan"]
     assert plan["id"] and plan["version"] and plan["name"], path
+    assert plan["id"] == entry["id"], path
+    assert plan["name"] == entry["title"], path
     workflow_ids = [workflow["id"] for workflow in plan["workflows"]]
     assert len(workflow_ids) == len(set(workflow_ids)), path
     known = set(workflow_ids)
     for workflow in plan["workflows"]:
         assert set(workflow.get("after", [])).issubset(known), path
 
-print(f"Checked {len(entries)} workflow definitions and {len(plans)} workflow plans")
+available_plans = {path.resolve() for path in (ROOT / "plans").glob("*.json")}
+assert referenced_plans == available_plans, "Every Plan file must appear exactly once in the catalogue"
+
+print(f"Checked {len(entries)} workflow definitions and {len(plan_entries)} workflow plans")

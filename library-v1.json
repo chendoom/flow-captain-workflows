@@ -2,6 +2,19 @@
   "format": "flow-captain-workflow-library",
   "schemaVersion": 1,
   "readmeURL": "https://github.com/chendoom/flow-captain-workflows#share-a-workflow",
+  "plans": [
+    {
+      "id": "group-trip",
+      "title": "Group Trip",
+      "summary": "Move from a trip proposal through date agreement and booking to shared expense tracking.",
+      "author": "Flow Captain",
+      "iconSystemName": "airplane",
+      "definitionPath": "plans/group-trip.json",
+      "requiredCapabilities": [
+        "workflow-plan-v1"
+      ]
+    }
+  ],
   "workflows": [
     {
       "id": "borrowed-item",
