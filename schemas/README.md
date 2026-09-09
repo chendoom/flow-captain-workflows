@@ -13,3 +13,6 @@ validation use these pinned contracts in the meantime.
 Workflow documents reference the local copy with a relative `$schema` path, so
 editor validation works from a checkout without contacting the website. The app
 selects its own strict decoder from `schemaVersion`, never from `$schema`.
+
+The v4 schema is pinned from the accompanying display-rules authoring kit in
+`chendoom-site/public/artifacts/v4`; it extends v3 without changing it.

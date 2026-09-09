@@ -46,7 +46,7 @@ for entry in entries:
     document = load(path)
     assert document["format"] == "chendoom-workflow", path
     schema_version = document["schemaVersion"]
-    assert schema_version in {1, 2, 3}, path
+    assert schema_version in {1, 2, 3, 4}, path
     if schema_version >= 2:
         assert f"authoring-schema-v{schema_version}" in capabilities, entry["id"]
     assert document["workflow"]["name"] == entry["title"], path

@@ -71,3 +71,7 @@ locally.
 Schema v3 adds validated `link` fields and `presentation.workflowData.prominentFields`.
 Declare `authoring-schema-v3` in the catalogue for every v3 workflow. Plan documents
 use their own schema version; do not change a Plan envelope to workflow schema v3.
+
+For display order, hide-when-empty, or status visibility, use schema version 4,
+`../schemas/workflow-v4.schema.json`, and catalogue capability `authoring-schema-v4`.
+Existing v3 templates remain valid and need no migration.
