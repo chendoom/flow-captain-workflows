@@ -1,0 +1,390 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "title": "Chendoom workflow authoring document, version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "schemaVersion", "workflow"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "format": { "const": "chendoom-workflow" },
+    "schemaVersion": { "const": 1 },
+    "workflow": { "$ref": "#/$defs/workflow" }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "listConstraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "minimum": { "type": "integer", "minimum": 0 },
+        "maximum": { "type": "integer", "minimum": 1 },
+        "unique": { "type": "boolean" },
+        "nonEmptyText": { "type": "boolean" },
+        "caseInsensitiveUnique": { "type": "boolean" }
+      }
+    },
+    "scalarType": {
+      "enum": [
+        "text",
+        "currency",
+        "money",
+        "whole-number",
+        "decimal",
+        "yes-no",
+        "date-time"
+      ]
+    },
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" }
+      }
+    },
+    "role": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "cardinality"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "cardinality": { "enum": ["one", "one-or-more"] },
+        "startsWorkflow": { "type": "boolean" },
+        "isObserver": { "type": "boolean" }
+      }
+    },
+    "recordField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "type", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/$defs/scalarType" },
+        "shape": { "enum": ["single", "list"] },
+        "list": { "$ref": "#/$defs/listConstraints" },
+        "kind": { "enum": ["key", "reference-key", "actor", "value"] },
+        "references": { "$ref": "#/$defs/id" }
+      }
+    },
+    "dataField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "type": {
+          "oneOf": [
+            { "$ref": "#/$defs/scalarType" },
+            { "const": "record-collection" }
+          ]
+        },
+        "shape": { "enum": ["single", "list"] },
+        "requiredAtStart": { "type": "boolean" },
+        "list": { "$ref": "#/$defs/listConstraints" },
+        "record": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fields"],
+          "properties": {
+            "maximumRecords": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+            "fields": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1000,
+              "items": { "$ref": "#/$defs/recordField" }
+            }
+          }
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "terminal": { "type": "boolean" },
+        "outcome": { "enum": ["successful", "neutral", "unsuccessful"] }
+      }
+    },
+    "optionSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "field"],
+      "properties": {
+        "kind": { "enum": ["workflow-data-list", "record-keys"] },
+        "field": { "$ref": "#/$defs/id" },
+        "excluding": { "$ref": "#/$defs/id" }
+      }
+    },
+    "preservedRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["collection", "fields"],
+      "properties": {
+        "collection": { "$ref": "#/$defs/id" },
+        "excluding": { "$ref": "#/$defs/id" },
+        "fields": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "payloadField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/$defs/scalarType" },
+        "shape": { "enum": ["single", "list"] },
+        "list": { "$ref": "#/$defs/listConstraints" },
+        "domainField": { "$ref": "#/$defs/id" },
+        "valueSource": { "enum": ["user", "generated-id"] },
+        "options": { "$ref": "#/$defs/optionSource" },
+        "selectAllInitially": { "type": "boolean" },
+        "minimumWholeNumber": { "type": "integer" },
+        "minimumMoneyMinorUnits": { "type": "integer" },
+        "currencyField": { "$ref": "#/$defs/id" },
+        "preserveRecord": { "$ref": "#/$defs/preservedRecord" }
+      },
+      "anyOf": [
+        { "required": ["type"] },
+        { "required": ["domainField"] }
+      ]
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "field", "equals"],
+      "properties": {
+        "source": { "enum": ["action-input", "workflow-data"] },
+        "field": { "$ref": "#/$defs/id" },
+        "equals": { "type": "boolean" }
+      }
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": ["saved-value", "current-actor-owns-selected-record"]
+        },
+        "field": { "$ref": "#/$defs/id" },
+        "equals": { "type": "boolean" },
+        "collection": { "$ref": "#/$defs/id" },
+        "selectedKeyInput": { "$ref": "#/$defs/id" },
+        "actorField": { "$ref": "#/$defs/id" }
+      }
+    },
+    "recordMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "source"],
+      "properties": {
+        "field": { "$ref": "#/$defs/id" },
+        "source": { "enum": ["action-input", "current-actor", "processed-at"] },
+        "input": { "$ref": "#/$defs/id" }
+      }
+    },
+    "dataUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "output"],
+      "properties": {
+        "kind": { "enum": ["copy-input", "compare-decimal", "append-record"] },
+        "output": { "$ref": "#/$defs/id" },
+        "input": { "$ref": "#/$defs/id" },
+        "comparison": {
+          "enum": [
+            "less-than",
+            "less-than-or-equal",
+            "greater-than",
+            "greater-than-or-equal",
+            "equal",
+            "not-equal"
+          ]
+        },
+        "value": { "type": "string" },
+        "keyInput": { "$ref": "#/$defs/id" },
+        "mappings": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/recordMapping" }
+        }
+      }
+    },
+    "path": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "role", "to"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "from": {
+          "anyOf": [{ "const": "start" }, { "$ref": "#/$defs/id" }]
+        },
+        "role": { "$ref": "#/$defs/id" },
+        "to": { "$ref": "#/$defs/id" },
+        "order": { "type": "integer", "minimum": 0 },
+        "emphasis": { "enum": ["standard", "destructive"] },
+        "when": { "$ref": "#/$defs/condition" },
+        "availability": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/availability" }
+        },
+        "updates": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/dataUpdate" }
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "paths"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "notificationTemplate": { "type": "string" },
+        "payload": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/payloadField" }
+        },
+        "paths": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/path" }
+        }
+      }
+    },
+    "timeout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "afterMinutes"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string" },
+        "from": { "$ref": "#/$defs/id" },
+        "to": { "$ref": "#/$defs/id" },
+        "afterMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5256000
+        }
+      }
+    },
+    "computedOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "formula"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "formula": { "type": "string", "minLength": 1, "maxLength": 32000 }
+      }
+    },
+    "collectionPresentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "source"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "source": { "$ref": "#/$defs/id" },
+        "excluding": { "$ref": "#/$defs/id" }
+      }
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "statePositions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/point" }
+        },
+        "pathLabelPositions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/point" }
+        },
+        "timeoutLabelPositions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/point" }
+        },
+        "workflowData": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "hiddenFields": {
+              "type": "array",
+              "maxItems": 1000,
+              "items": { "$ref": "#/$defs/id" }
+            },
+            "collections": {
+              "type": "array",
+              "maxItems": 1000,
+              "items": { "$ref": "#/$defs/collectionPresentation" }
+            }
+          }
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "roles", "states", "actions"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 32000 },
+        "description": { "type": "string", "maxLength": 32000 },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/role" }
+        },
+        "data": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/dataField" }
+        },
+        "states": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/state" }
+        },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/action" }
+        },
+        "timeouts": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/timeout" }
+        },
+        "computedOutputs": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": { "$ref": "#/$defs/computedOutput" }
+        },
+        "presentation": { "$ref": "#/$defs/presentation" }
+      }
+    }
+  }
+}

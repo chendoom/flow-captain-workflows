@@ -33,8 +33,8 @@ in [`workflows/`](workflows/).
 ## Workflow Plans
 
 Plans connect several workflows into a larger journey. The first public Plan,
-**Group Trip**, covers proposing a trip, agreeing dates, booking, and splitting
-the final costs. Its editable definition is in [`plans/`](plans/README.md).
+**Group Trip**, covers choosing a destination and tracking shared expenses. Its
+review manifest and pinned bundled versions are in [`plans/`](plans/README.md).
 
 Travellers in that Plan do not need app accounts. An authorised Flow Captain
 user can record a booking or expense for them, while the audit data still says
@@ -52,3 +52,14 @@ The public authoring format and examples are documented in the
 ## Licence
 
 The contents of this repository are available under the [MIT Licence](LICENSE).
+
+## Current template features
+
+All ordinary workflows use authoring schema v3 and declare `authoring-schema-v3`.
+Their cards highlight the information needed to identify or act on the workflow.
+Document Review requires a document title and validated link. Delivery Tracking,
+Purchase Approval and Event RSVP provide optional link actions that do not block
+starting a workflow. Rejection and retry actions collect useful explanations.
+
+Existing imports are independent definitions and are not updated automatically.
+The app version must support v3 library entries before downloading these templates.

@@ -1,7 +1,7 @@
 {
-  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "$schema": "../schemas/workflow-v3.schema.json",
   "format": "chendoom-workflow",
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "workflow": {
     "name": "Household Chore",
     "description": "Assign a household task, check the result, and request another attempt when needed.",
@@ -30,6 +30,11 @@
         "name": "Task",
         "type": "text",
         "requiredAtStart": true
+      },
+      {
+        "id": "retry-feedback",
+        "name": "What Needs Changing",
+        "type": "text"
       }
     ],
     "states": [
@@ -109,10 +114,31 @@
             "from": "ready-to-check",
             "role": "organizer",
             "to": "assigned",
-            "order": 2
+            "order": 2,
+            "updates": [
+              {
+                "kind": "copy-input",
+                "output": "retry-feedback",
+                "input": "retry-feedback"
+              }
+            ]
+          }
+        ],
+        "payload": [
+          {
+            "id": "retry-feedback",
+            "name": "What Needs Changing",
+            "domainField": "retry-feedback"
           }
         ]
       }
-    ]
+    ],
+    "presentation": {
+      "workflowData": {
+        "prominentFields": [
+          "task"
+        ]
+      }
+    }
   }
 }

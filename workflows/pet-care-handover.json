@@ -1,82 +1,233 @@
 {
-  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "$schema": "../schemas/workflow-v3.schema.json",
   "format": "chendoom-workflow",
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "workflow": {
     "name": "Pet Care Handover",
     "description": "Share care instructions, accept responsibility, and confirm the pet is handed back.",
     "roles": [
-      { "id": "owner", "name": "Owner", "cardinality": "one", "startsWorkflow": true },
-      { "id": "carer", "name": "Carer", "cardinality": "one" },
-      { "id": "observer", "name": "Observer", "cardinality": "one-or-more", "isObserver": true }
+      {
+        "id": "owner",
+        "name": "Owner",
+        "cardinality": "one",
+        "startsWorkflow": true
+      },
+      {
+        "id": "carer",
+        "name": "Carer",
+        "cardinality": "one"
+      },
+      {
+        "id": "observer",
+        "name": "Observer",
+        "cardinality": "one-or-more",
+        "isObserver": true
+      }
     ],
     "data": [
-      { "id": "pet", "name": "Pet", "type": "text", "requiredAtStart": true },
-      { "id": "care-instructions", "name": "Care Instructions", "type": "text", "requiredAtStart": true },
-      { "id": "care-ends", "name": "Care Ends", "type": "date-time", "requiredAtStart": true },
-      { "id": "latest-update", "name": "Latest Update", "type": "text" }
+      {
+        "id": "pet",
+        "name": "Pet",
+        "type": "text",
+        "requiredAtStart": true
+      },
+      {
+        "id": "care-instructions",
+        "name": "Care Instructions",
+        "type": "text",
+        "requiredAtStart": true
+      },
+      {
+        "id": "care-ends",
+        "name": "Care Ends",
+        "type": "date-time",
+        "requiredAtStart": true
+      },
+      {
+        "id": "latest-update",
+        "name": "Latest Update",
+        "type": "text"
+      },
+      {
+        "id": "decline-reason",
+        "name": "Reason for Declining",
+        "type": "text"
+      }
     ],
     "states": [
-      { "id": "offered", "name": "Offered" },
-      { "id": "in-care", "name": "In Care" },
-      { "id": "ready-to-return", "name": "Ready to Return" },
-      { "id": "complete", "name": "Complete", "terminal": true, "outcome": "successful" },
-      { "id": "declined", "name": "Declined", "terminal": true, "outcome": "neutral" }
+      {
+        "id": "offered",
+        "name": "Offered"
+      },
+      {
+        "id": "in-care",
+        "name": "In Care"
+      },
+      {
+        "id": "ready-to-return",
+        "name": "Ready to Return"
+      },
+      {
+        "id": "complete",
+        "name": "Complete",
+        "terminal": true,
+        "outcome": "successful"
+      },
+      {
+        "id": "declined",
+        "name": "Declined",
+        "terminal": true,
+        "outcome": "neutral"
+      }
     ],
     "actions": [
       {
         "id": "offer-pet-care",
         "name": "Offer Pet Care",
         "payload": [
-          { "id": "pet", "name": "Pet", "domainField": "pet" },
-          { "id": "care-instructions", "name": "Care Instructions", "domainField": "care-instructions" },
-          { "id": "care-ends", "name": "Care Ends", "domainField": "care-ends" }
+          {
+            "id": "pet",
+            "name": "Pet",
+            "domainField": "pet"
+          },
+          {
+            "id": "care-instructions",
+            "name": "Care Instructions",
+            "domainField": "care-instructions"
+          },
+          {
+            "id": "care-ends",
+            "name": "Care Ends",
+            "domainField": "care-ends"
+          }
         ],
-        "paths": [{
-          "id": "offer-pet-care-path",
-          "from": "start",
-          "role": "owner",
-          "to": "offered",
-          "updates": [
-            { "kind": "copy-input", "output": "pet", "input": "pet" },
-            { "kind": "copy-input", "output": "care-instructions", "input": "care-instructions" },
-            { "kind": "copy-input", "output": "care-ends", "input": "care-ends" }
-          ]
-        }]
+        "paths": [
+          {
+            "id": "offer-pet-care-path",
+            "from": "start",
+            "role": "owner",
+            "to": "offered",
+            "updates": [
+              {
+                "kind": "copy-input",
+                "output": "pet",
+                "input": "pet"
+              },
+              {
+                "kind": "copy-input",
+                "output": "care-instructions",
+                "input": "care-instructions"
+              },
+              {
+                "kind": "copy-input",
+                "output": "care-ends",
+                "input": "care-ends"
+              }
+            ]
+          }
+        ]
       },
       {
         "id": "accept-pet-care",
         "name": "Accept Care",
-        "paths": [{ "id": "accept-pet-care-path", "from": "offered", "role": "carer", "to": "in-care", "order": 1 }]
+        "paths": [
+          {
+            "id": "accept-pet-care-path",
+            "from": "offered",
+            "role": "carer",
+            "to": "in-care",
+            "order": 1
+          }
+        ]
       },
       {
         "id": "decline-pet-care",
         "name": "Decline",
-        "paths": [{ "id": "decline-pet-care-path", "from": "offered", "role": "carer", "to": "declined", "order": 2, "emphasis": "destructive" }]
+        "paths": [
+          {
+            "id": "decline-pet-care-path",
+            "from": "offered",
+            "role": "carer",
+            "to": "declined",
+            "order": 2,
+            "emphasis": "destructive",
+            "updates": [
+              {
+                "kind": "copy-input",
+                "output": "decline-reason",
+                "input": "decline-reason"
+              }
+            ]
+          }
+        ],
+        "payload": [
+          {
+            "id": "decline-reason",
+            "name": "Reason for Declining",
+            "domainField": "decline-reason"
+          }
+        ]
       },
       {
         "id": "record-care-update",
         "name": "Record Update",
-        "payload": [{ "id": "care-update", "name": "Care Update", "domainField": "latest-update" }],
-        "paths": [{
-          "id": "record-care-update-path",
-          "from": "in-care",
-          "role": "carer",
-          "to": "in-care",
-          "order": 1,
-          "updates": [{ "kind": "copy-input", "output": "latest-update", "input": "care-update" }]
-        }]
+        "payload": [
+          {
+            "id": "care-update",
+            "name": "Care Update",
+            "domainField": "latest-update"
+          }
+        ],
+        "paths": [
+          {
+            "id": "record-care-update-path",
+            "from": "in-care",
+            "role": "carer",
+            "to": "in-care",
+            "order": 1,
+            "updates": [
+              {
+                "kind": "copy-input",
+                "output": "latest-update",
+                "input": "care-update"
+              }
+            ]
+          }
+        ]
       },
       {
         "id": "hand-back-pet",
         "name": "Hand Back Pet",
-        "paths": [{ "id": "hand-back-pet-path", "from": "in-care", "role": "carer", "to": "ready-to-return", "order": 2 }]
+        "paths": [
+          {
+            "id": "hand-back-pet-path",
+            "from": "in-care",
+            "role": "carer",
+            "to": "ready-to-return",
+            "order": 2
+          }
+        ]
       },
       {
         "id": "confirm-pet-return",
         "name": "Confirm Return",
-        "paths": [{ "id": "confirm-pet-return-path", "from": "ready-to-return", "role": "owner", "to": "complete" }]
+        "paths": [
+          {
+            "id": "confirm-pet-return-path",
+            "from": "ready-to-return",
+            "role": "owner",
+            "to": "complete"
+          }
+        ]
       }
-    ]
+    ],
+    "presentation": {
+      "workflowData": {
+        "prominentFields": [
+          "pet",
+          "care-ends"
+        ]
+      }
+    }
   }
 }

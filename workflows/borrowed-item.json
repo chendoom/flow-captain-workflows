@@ -1,7 +1,7 @@
 {
-  "$schema": "https://www.chendoom.co.uk/artifacts/v1/workflow-v1.schema.json",
+  "$schema": "../schemas/workflow-v3.schema.json",
   "format": "chendoom-workflow",
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "workflow": {
     "name": "Borrowed Item",
     "description": "Record an item being lent, returned, and acknowledged by its owner.",
@@ -109,6 +109,14 @@
           }
         ]
       }
-    ]
+    ],
+    "presentation": {
+      "workflowData": {
+        "prominentFields": [
+          "item",
+          "return-by"
+        ]
+      }
+    }
   }
 }

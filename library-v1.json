@@ -6,12 +6,13 @@
     {
       "id": "group-trip",
       "title": "Group Trip",
-      "summary": "Move from a trip proposal through date agreement and booking to shared expense tracking.",
+      "summary": "Choose a destination together, then track and split trip expenses with booking links.",
       "author": "Flow Captain",
       "iconSystemName": "airplane",
       "definitionPath": "plans/group-trip.json",
       "requiredCapabilities": [
-        "workflow-plan-v1"
+        "workflow-plan-v1",
+        "authoring-schema-v3"
       ]
     }
   ],
@@ -22,7 +23,10 @@
       "summary": "Record an item being lent, returned, and acknowledged.",
       "author": "Flow Captain",
       "iconSystemName": "shippingbox.fill",
-      "definitionPath": "workflows/borrowed-item.json"
+      "definitionPath": "workflows/borrowed-item.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "borrowed-vehicle",
@@ -30,7 +34,10 @@
       "summary": "Coordinate collection, use, return, and condition notes for a borrowed vehicle.",
       "author": "Flow Captain",
       "iconSystemName": "car.fill",
-      "definitionPath": "workflows/borrowed-vehicle.json"
+      "definitionPath": "workflows/borrowed-vehicle.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "delivery-tracking",
@@ -38,7 +45,10 @@
       "summary": "Follow a delivery from dispatch through collection and confirmed receipt.",
       "author": "Flow Captain",
       "iconSystemName": "shippingbox.fill",
-      "definitionPath": "workflows/delivery-tracking.json"
+      "definitionPath": "workflows/delivery-tracking.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "document-review",
@@ -46,7 +56,10 @@
       "summary": "Submit a document for approval or return it to the author for changes.",
       "author": "Flow Captain",
       "iconSystemName": "doc.text.magnifyingglass",
-      "definitionPath": "workflows/document-review.json"
+      "definitionPath": "workflows/document-review.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "equipment-inspection",
@@ -54,7 +67,10 @@
       "summary": "Request an inspection, record the result, and repeat it after repairs.",
       "author": "Flow Captain",
       "iconSystemName": "checkmark.seal.fill",
-      "definitionPath": "workflows/equipment-inspection.json"
+      "definitionPath": "workflows/equipment-inspection.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "event-rsvp",
@@ -62,7 +78,10 @@
       "summary": "Invite one guest, collect their response, and acknowledge the final answer.",
       "author": "Flow Captain",
       "iconSystemName": "calendar.badge.checkmark",
-      "definitionPath": "workflows/event-rsvp.json"
+      "definitionPath": "workflows/event-rsvp.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "holiday-request",
@@ -70,7 +89,10 @@
       "summary": "Request time away and receive a clear approval or decline from a manager.",
       "author": "Flow Captain",
       "iconSystemName": "calendar.badge.clock",
-      "definitionPath": "workflows/holiday-request.json"
+      "definitionPath": "workflows/holiday-request.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "home-repair",
@@ -78,7 +100,10 @@
       "summary": "Report a household problem, track the repair, and confirm the result.",
       "author": "Flow Captain",
       "iconSystemName": "wrench.and.screwdriver.fill",
-      "definitionPath": "workflows/home-repair.json"
+      "definitionPath": "workflows/home-repair.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "household-chore",
@@ -86,7 +111,10 @@
       "summary": "Assign a task, check the result, and request another attempt when needed.",
       "author": "Flow Captain",
       "iconSystemName": "checkmark.circle.fill",
-      "definitionPath": "workflows/household-chore.json"
+      "definitionPath": "workflows/household-chore.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "pet-care-handover",
@@ -94,7 +122,10 @@
       "summary": "Share care instructions, accept responsibility, and confirm the pet is handed back.",
       "author": "Flow Captain",
       "iconSystemName": "pawprint.fill",
-      "definitionPath": "workflows/pet-care-handover.json"
+      "definitionPath": "workflows/pet-care-handover.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "purchase-approval",
@@ -102,7 +133,10 @@
       "summary": "Submit a proposed purchase for approval, rejection, or requested changes.",
       "author": "Flow Captain",
       "iconSystemName": "cart.fill",
-      "definitionPath": "workflows/purchase-approval.json"
+      "definitionPath": "workflows/purchase-approval.json",
+      "requiredCapabilities": [
+        "authoring-schema-v3"
+      ]
     },
     {
       "id": "shared-shopping-list",
@@ -112,7 +146,7 @@
       "iconSystemName": "list.bullet.clipboard.fill",
       "definitionPath": "workflows/shared-shopping-list.json",
       "requiredCapabilities": [
-        "authoring-schema-v2"
+        "authoring-schema-v3"
       ]
     }
   ]

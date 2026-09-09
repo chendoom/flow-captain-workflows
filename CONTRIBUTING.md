@@ -13,7 +13,7 @@ Definitions screen:
    another capable AI.
 3. Describe the roles, starting information, actions, outcomes, and any
    deadlines in ordinary language.
-4. Ask the AI to return exactly one schema-version-2 workflow JSON document.
+4. Ask the AI to return exactly one schema-version-3 workflow JSON document.
 5. Import that JSON into Flow Captain, review the visual graph, and correct any
    validation issues before submitting it here.
 
@@ -24,7 +24,7 @@ intend.
 ## Before opening a pull request
 
 1. Create one JSON document using a supported `chendoom-workflow` schema,
-   ideally the current version 2, through the AI-assisted route above.
+   ideally the current version 3, through the AI-assisted route above.
 2. Use lower-case kebab-case IDs and a short lower-case kebab-case filename.
 3. Put the document in `workflows/`.
 4. Add one entry to `library-v1.json`; keep entries ordered by title.
@@ -67,3 +67,7 @@ silent change to an already published contract.
 Do not place a download URL inside a workflow document. Flow Captain resolves
 the path from the reviewed catalogue and then validates the downloaded JSON
 locally.
+
+Schema v3 adds validated `link` fields and `presentation.workflowData.prominentFields`.
+Declare `authoring-schema-v3` in the catalogue for every v3 workflow. Plan documents
+use their own schema version; do not change a Plan envelope to workflow schema v3.
