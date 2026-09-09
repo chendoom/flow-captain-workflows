@@ -75,3 +75,5 @@ use their own schema version; do not change a Plan envelope to workflow schema v
 For display order, hide-when-empty, or status visibility, use schema version 4,
 `../schemas/workflow-v4.schema.json`, and catalogue capability `authoring-schema-v4`.
 Existing v3 templates remain valid and need no migration.
+
+Choice fields require schema version 5 and the `authoring-schema-v5` capability. See `schemas/workflow-v5.schema.json` and Household Chore for the allowed-choice format. Older schemas remain unchanged.

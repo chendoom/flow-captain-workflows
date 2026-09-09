@@ -1,10 +1,10 @@
 {
-  "$schema": "../schemas/workflow-v3.schema.json",
+  "$schema": "../schemas/workflow-v5.schema.json",
   "format": "chendoom-workflow",
-  "schemaVersion": 3,
+  "schemaVersion": 5,
   "workflow": {
     "name": "Household Chore",
-    "description": "Assign a household task, check the result, and request another attempt when needed.",
+    "description": "Choose a household chore from a defined list, check the result, and request another attempt when needed.",
     "roles": [
       {
         "id": "organizer",
@@ -27,9 +27,23 @@
     "data": [
       {
         "id": "task",
-        "name": "Task",
-        "type": "text",
-        "requiredAtStart": true
+        "name": "Chore",
+        "type": "choice",
+        "requiredAtStart": true,
+        "choices": [
+          {
+            "id": "vacuum",
+            "label": "Vacuum"
+          },
+          {
+            "id": "wash-dishes",
+            "label": "Wash dishes"
+          },
+          {
+            "id": "take-bins-out",
+            "label": "Take bins out"
+          }
+        ]
       },
       {
         "id": "retry-feedback",
@@ -60,7 +74,7 @@
         "payload": [
           {
             "id": "task",
-            "name": "Task",
+            "name": "Chore",
             "domainField": "task"
           }
         ],
@@ -137,7 +151,16 @@
       "workflowData": {
         "prominentFields": [
           "task"
-        ]
+        ],
+        "fieldRules": {
+          "retry-feedback": {
+            "hideWhenEmpty": true,
+            "visibleStates": [
+              "assigned",
+              "ready-to-check"
+            ]
+          }
+        }
       }
     }
   }

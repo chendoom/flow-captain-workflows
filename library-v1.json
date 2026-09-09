@@ -108,12 +108,12 @@
     {
       "id": "household-chore",
       "title": "Household Chore",
-      "summary": "Assign a task, check the result, and request another attempt when needed.",
+      "summary": "Choose a chore from a defined list, check the result, and request another attempt when needed.",
       "author": "Flow Captain",
       "iconSystemName": "checkmark.circle.fill",
       "definitionPath": "workflows/household-chore.json",
       "requiredCapabilities": [
-        "authoring-schema-v3"
+        "authoring-schema-v5"
       ]
     },
     {
