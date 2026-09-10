@@ -27,7 +27,7 @@
       {
         "id": "proposal",
         "definitionId": "trip-proposal",
-        "definitionVersion": "15",
+        "definitionVersion": "16",
         "creationEventId": "propose-trip",
         "launch": "automatic",
         "roleBindings": [
@@ -44,7 +44,7 @@
       {
         "id": "expenses",
         "definitionId": "trip-expenses",
-        "definitionVersion": "16",
+        "definitionVersion": "15",
         "creationEventId": "start-trip-at-destination",
         "launch": "automatic",
         "after": [
