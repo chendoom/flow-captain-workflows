@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "plan": {
     "id": "group-trip",
-    "version": "12",
+    "version": "16",
     "name": "Group Trip",
     "description": "Suggest destinations, choose a most-suggested destination, then record and split trip expenses with booking links close at hand.",
     "roles": [
@@ -27,7 +27,7 @@
       {
         "id": "proposal",
         "definitionId": "trip-proposal",
-        "definitionVersion": "16",
+        "definitionVersion": "17",
         "creationEventId": "propose-trip",
         "launch": "automatic",
         "roleBindings": [
@@ -44,7 +44,7 @@
       {
         "id": "expenses",
         "definitionId": "trip-expenses",
-        "definitionVersion": "15",
+        "definitionVersion": "19",
         "creationEventId": "start-trip-at-destination",
         "launch": "automatic",
         "after": [
