@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/chendoom/flow-captain-workflows/main/schemas/workflow-plan-v2.schema.json",
+  "title": "Chendoom workflow Plan authoring document, version 2",
+  "description": "A Plan links workflow authoring documents in order. Each workflow starts by itself when the one before it ends, and may take people and information from it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "schemaVersion", "plan"],
+  "properties": {
+    "$schema": { "type": "string", "maxLength": 256 },
+    "format": { "const": "chendoom-workflow-plan" },
+    "schemaVersion": { "const": 2 },
+    "plan": { "$ref": "#/$defs/plan" }
+  },
+  "$defs": {
+    "id": {
+      "description": "A stable lower-case kebab-case identifier for one workflow of the Plan.",
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "reference": {
+      "description": "The ID of a role, data field, action or action input, exactly as the workflow document spells it.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "\\S"
+    },
+    "definitionPath": {
+      "description": "The workflow authoring document, as a path from the root of the library. It is never a URL.",
+      "type": "string",
+      "maxLength": 256,
+      "pattern": "^[a-z0-9][a-z0-9._-]*(?:/[a-z0-9][a-z0-9._-]*)*\\.json$"
+    },
+    "roleBinding": {
+      "description": "People holding fromRoleId in the workflow before carry on as toRoleId in this one.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fromRoleId", "toRoleId"],
+      "properties": {
+        "fromRoleId": { "$ref": "#/$defs/reference" },
+        "toRoleId": { "$ref": "#/$defs/reference" }
+      }
+    },
+    "inputBinding": {
+      "description": "The data field fromFieldId of the workflow before, as it finished, fills the input toInputId of this workflow's start action.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fromFieldId", "toInputId"],
+      "properties": {
+        "fromFieldId": { "$ref": "#/$defs/reference" },
+        "toInputId": { "$ref": "#/$defs/reference" }
+      }
+    },
+    "firstWorkflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "definitionPath", "startActionId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "definitionPath": { "$ref": "#/$defs/definitionPath" },
+        "startActionId": { "$ref": "#/$defs/reference" }
+      }
+    },
+    "laterWorkflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "definitionPath", "startActionId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "definitionPath": { "$ref": "#/$defs/definitionPath" },
+        "startActionId": { "$ref": "#/$defs/reference" },
+        "roleBindings": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "$ref": "#/$defs/roleBinding" }
+        },
+        "inputBindings": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "$ref": "#/$defs/inputBinding" }
+        }
+      }
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "workflows"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 120,
+          "pattern": "^[^\\r\\n]*\\S[^\\r\\n]*$"
+        },
+        "description": { "type": "string", "maxLength": 2000 },
+        "workflows": {
+          "description": "The workflows in the order they run. The first takes nothing from a workflow before it.",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 12,
+          "prefixItems": [{ "$ref": "#/$defs/firstWorkflow" }],
+          "items": { "$ref": "#/$defs/laterWorkflow" }
+        }
+      }
+    }
+  }
+}

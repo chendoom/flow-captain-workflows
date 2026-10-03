@@ -1,0 +1,28 @@
+{
+  "$schema": "../schemas/workflow-plan-v2.schema.json",
+  "format": "chendoom-workflow-plan",
+  "schemaVersion": 2,
+  "plan": {
+    "name": "Vehicle Loan and Check",
+    "description": "Lend a vehicle, then have it inspected once it is back. The owner asks for the inspection, and anyone following the loan follows the inspection too.",
+    "workflows": [
+      {
+        "id": "loan",
+        "definitionPath": "workflows/borrowed-vehicle.json",
+        "startActionId": "offer-vehicle"
+      },
+      {
+        "id": "inspection",
+        "definitionPath": "workflows/equipment-inspection.json",
+        "startActionId": "request-inspection",
+        "roleBindings": [
+          { "fromRoleId": "owner", "toRoleId": "operator" },
+          { "fromRoleId": "observer", "toRoleId": "observer" }
+        ],
+        "inputBindings": [
+          { "fromFieldId": "vehicle", "toInputId": "equipment" }
+        ]
+      }
+    ]
+  }
+}

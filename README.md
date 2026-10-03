@@ -32,11 +32,19 @@ in [`workflows/`](workflows/).
 
 ## Workflow Plans
 
-Plans connect several workflows into a larger journey. The first public Plan,
-**Group Trip**, covers choosing a destination and tracking shared expenses. Its
-review manifest and pinned bundled versions are in [`plans/`](plans/README.md).
+Plans connect several workflows into a larger journey: each workflow starts by
+itself when the one before it ends, and can take people and information from
+it. People can download a Plan in the app, review it together with the
+workflows it links, and add it to their own.
 
-Travellers in that Plan do not need app accounts. An authorised Flow Captain
+- **Group Trip** — choose a destination together, then track and split trip
+  expenses. This Plan comes with Flow Captain; its entry here opens it.
+- **Vehicle Loan and Check** — lend a vehicle, then have it inspected once it
+  is back.
+
+The format, and what makes a good Plan, are in [`plans/`](plans/README.md).
+
+Travellers in Group Trip do not need app accounts. An authorised Flow Captain
 user can record a booking or expense for them, while the audit data still says
 which signed-in actor entered it.
 
