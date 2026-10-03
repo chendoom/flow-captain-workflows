@@ -16,3 +16,8 @@ selects its own strict decoder from `schemaVersion`, never from `$schema`.
 
 The v4 schema is pinned from the accompanying display-rules authoring kit in
 `chendoom-site/public/artifacts/v4`; it extends v3 without changing it.
+
+`workflow-plan-v2.schema.json` is the public Plan document, version 2. It is
+maintained here, beside the Plans it describes, and Flow Captain's importer
+applies the same closed rules on the device. Like the workflow schemas it is
+immutable once published: new vocabulary needs a new version.

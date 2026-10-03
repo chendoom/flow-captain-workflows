@@ -16,8 +16,19 @@ jobs:
       - run: python3 scripts/check_library.py
       - name: Validate every workflow against the public schema
         run: |
-          for document in workflows/*.json; do
+          shopt -s nullglob
+          for document in workflows/*.json plans/*/*.json; do
             version="$(jq -r '.schemaVersion' "$document")"
             npx --yes ajv-cli@5 validate --spec=draft2020 --strict=false \
               -s "schemas/workflow-v${version}.schema.json" -d "$document"
+          done
+      - name: Validate every Plan against the public schema
+        run: |
+          for document in plans/*.json; do
+            version="$(jq -r '.schemaVersion' "$document")"
+            # Version 1 names a Plan that comes with the app and has no schema of its own.
+            if [ "$version" -ge 2 ]; then
+              npx --yes ajv-cli@5 validate --spec=draft2020 --strict=false \
+                -s "schemas/workflow-plan-v${version}.schema.json" -d "$document"
+            fi
           done

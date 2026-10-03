@@ -32,6 +32,19 @@ intend.
 6. Import the JSON into Flow Captain and confirm that it opens in the visual
    editor without blocking validation errors.
 
+## Contributing a Plan
+
+A Plan links workflows already in this library, or written for the Plan, into
+one journey. Read [`plans/README.md`](plans/README.md) first.
+
+1. Write a version 2 `chendoom-workflow-plan` document and put it in `plans/`.
+2. Add one entry to the `plans` list of `library-v1.json`, ordered by title,
+   with the same `title` as the Plan's `name`. Declare `workflow-plan-v2` and
+   the `authoring-schema-v…` capability of every workflow the Plan links.
+3. Run `python3 scripts/check_library.py`.
+4. Download the Plan in Flow Captain, review it, add it and run it through to
+   the end before opening a pull request.
+
 ## What belongs here
 
 - A focused workflow that is useful to more than one person.
@@ -70,7 +83,8 @@ locally.
 
 Schema v3 adds validated `link` fields and `presentation.workflowData.prominentFields`.
 Declare `authoring-schema-v3` in the catalogue for every v3 workflow. Plan documents
-use their own schema version; do not change a Plan envelope to workflow schema v3.
+use their own schema versions, described in `plans/README.md`; do not change a
+Plan envelope to a workflow schema version.
 
 For display order, hide-when-empty, or status visibility, use schema version 4,
 `../schemas/workflow-v4.schema.json`, and catalogue capability `authoring-schema-v4`.

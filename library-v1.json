@@ -14,6 +14,18 @@
         "workflow-plan-v1",
         "authoring-schema-v3"
       ]
+    },
+    {
+      "id": "vehicle-loan-and-check",
+      "title": "Vehicle Loan and Check",
+      "summary": "Lend a vehicle, then have it inspected once it is back.",
+      "author": "Flow Captain",
+      "iconSystemName": "car.fill",
+      "definitionPath": "plans/vehicle-loan-and-check.json",
+      "requiredCapabilities": [
+        "workflow-plan-v2",
+        "authoring-schema-v3"
+      ]
     }
   ],
   "workflows": [
